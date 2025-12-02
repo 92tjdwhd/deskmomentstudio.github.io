@@ -6,11 +6,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta
     name="description"
-    content="DeskMoment Studio - 책상 위에서 쌓이는 작은 순간들을 소중히 여기는 앱 개발 스튜디오"
+    content="DeskMoment Studio - 책상 위의 작은 순간을 소중히 여기는 모바일 앱 개발 스튜디오"
   />
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
+  <!-- Header -->
   <header class="site-header">
     <div class="container header-inner">
       <div class="logo">DeskMoment Studio</div>
@@ -60,14 +62,14 @@
               <li>작은 디테일까지 신중하게 다룹니다.</li>
               <li>빠르게 만드는 것보다, 제대로 만드는 것을 우선합니다.</li>
               <li>사용자에게 불편함이 없도록 명확하고 직관적인 UX를 지향합니다.</li>
-              <li>불필요한 기능보다, 꼭 필요한 기능에 집중합니다.</li>
+              <li>불필요한 기능보다 꼭 필요한 핵심 기능에 집중합니다.</li>
             </ul>
           </div>
           <div>
             <h3>우리가 만드는 가치</h3>
             <p>
-              우리가 소중히 다룬 작은 작업의 순간들이<br />
-              결국 사용자가 편안하게 사용할 수 있는 앱으로 이어진다고 믿습니다.
+              우리가 소중히 쌓아올린 작업의 순간들이<br />
+              결국 사용자가 편안하게 사용할 수 있는 앱으로 이어집니다.
             </p>
             <p>
               DeskMoment Studio의 제품에서 사용자는<br />
@@ -78,7 +80,7 @@
       </div>
     </section>
 
-    <!-- Work / Projects -->
+    <!-- Work (스라밸 제거 버전) -->
     <section class="section section-alt" id="work">
       <div class="container">
         <h2>Our Work</h2>
@@ -87,14 +89,6 @@
         </p>
 
         <div class="grid three-col cards">
-          <article class="card">
-            <h3>스라밸 (SraBal)</h3>
-            <p class="badge">Digital Wellbeing</p>
-            <p>
-              위치 잠금, 와이파이 잠금, 사용 공유 기능으로<br />
-              스마트폰 사용을 스스로 조절할 수 있도록 돕는 디지털 웰빙 앱입니다.
-            </p>
-          </article>
 
           <article class="card">
             <h3>쉬운 AAC</h3>
@@ -109,10 +103,11 @@
             <h3>로또 정석</h3>
             <p class="badge">Utility</p>
             <p>
-              단순 랜덤이 아닌, 데이터 기반으로 번호를 생성하고<br />
-              통계를 시각적으로 보여주는 로또 번호 도우미 앱입니다.
+              단순 랜덤이 아닌 데이터 기반 번호 생성과<br />
+              시각적인 통계를 제공하는 로또 도우미 앱입니다.
             </p>
           </article>
+
         </div>
       </div>
     </section>
@@ -163,35 +158,42 @@
         </p>
 
         <div class="contact-box">
-          <p>이메일로 편하게 연락 주세요.</p>
+          <p>DeskMoment Studio는 모바일 앱 개발 및 서비스 운영을 전문으로 합니다.</p>
+
+          <div style="margin: 16px 0;">
+            <p><strong>회사명:</strong> DeskMoment Studio</p>
+            <p><strong>대표자:</strong> Park SeongJong</p>
+            <p><strong>연락처:</strong> 010-2620-6211</p>
+            <p><strong>이메일:</strong> 
+              <a href="mailto:seongjong@deskmomentstudio.com">
+                seongjong@deskmomentstudio.com
+              </a>
+            </p>
+            <p><strong>사업 분야:</strong> 모바일 앱 개발 및 서비스 운영</p>
+          </div>
+
           <p class="contact-email">
-            <a href="mailto:contact@deskmomentstudio.com">contact@deskmomentstudio.com</a>
+            <a href="mailto:seongjong@deskmomentstudio.com" class="btn primary">
+              이메일 보내기
+            </a>
           </p>
-          <!-- 필요하면 나중에 폼 추가 -->
-          <!--
-          <form class="contact-form">
-            <input type="text" placeholder="Your Name" required />
-            <input type="email" placeholder="Your Email" required />
-            <textarea rows="4" placeholder="Message" required></textarea>
-            <button type="submit" class="btn primary">Send</button>
-          </form>
-          -->
         </div>
       </div>
     </section>
   </main>
 
+  <!-- Footer -->
   <footer class="site-footer">
     <div class="container footer-inner">
       <p>© <span id="year"></span> DeskMoment Studio. All rights reserved.</p>
-      <p class="footer-sub">
-        작은 순간을 소중히 여기는 개발 스튜디오, DeskMoment Studio
-      </p>
+      <p class="footer-sub">대표자: Park SeongJong · 연락처: 010-2620-6211</p>
+      <p class="footer-sub">이메일: seongjong@deskmomentstudio.com</p>
+      <p class="footer-sub">사업 분야: 모바일 앱 개발 및 서비스 운영</p>
     </div>
   </footer>
 
+  <!-- Footer Year -->
   <script>
-    // 푸터 연도 자동 갱신
     document.getElementById('year').textContent = new Date().getFullYear();
   </script>
 </body>
