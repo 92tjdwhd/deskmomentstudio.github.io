@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>DeskMoment Studio — Admin</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-alt: #f6f6f8;
+    --text: #111111;
+    --text-muted: #666666;
+    --border: #e2e2e6;
+    --accent: #111827;
+    --accent-soft: #e5e7eb;
+    --radius-lg: 20px;
+    --radius-md: 12px;
+    --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.06);
+    --ok: #15803d;
+    --ok-bg: #ecfdf3;
+    --bad: #b91c1c;
+    --bad-bg: #fef2f2;
+    --new: #b45309;
+    --new-bg: #fffbeb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans KR", sans-serif;
+    color: var(--text); background: var(--bg-alt); line-height: 1.6;
+  }
+  .container { width: 100%; max-width: 900px; margin: 0 auto; padding: 0 20px 80px; }
+  header.top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .top-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; height: 58px; display: flex; align-items: center; gap: 12px; }
+  .logo { font-weight: 700; letter-spacing: 0.04em; font-size: 0.95rem; }
+  .logo span { color: var(--text-muted); font-weight: 500; }
+  .conn { display: flex; gap: 6px; margin-left: auto; align-items: center; }
+  .chip { font-size: 0.72rem; font-weight: 600; padding: 3px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--text-muted); white-space: nowrap; }
+  .chip.ok { background: var(--ok-bg); color: var(--ok); }
+  .chip.bad { background: var(--bad-bg); color: var(--bad); }
+  #logout { border: 1px solid var(--border); background: var(--bg); border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; color: var(--text-muted); }
+  #logout:hover { color: var(--text); }
+
+  /* 로그인 */
+  #login-view { max-width: 380px; margin: 80px auto 0; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px 28px; box-shadow: var(--shadow-soft); }
+  #login-view h1 { font-size: 1.1rem; margin: 0 0 4px; }
+  #login-view p { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 20px; }
+  #login-view label { display: block; font-size: 0.78rem; font-weight: 600; margin: 12px 0 4px; }
+  #login-view input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.9rem; background: var(--bg); }
+  #login-view button { width: 100%; margin-top: 20px; padding: 11px; border: none; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  #login-view button:disabled { opacity: 0.5; }
+  #login-msg { font-size: 0.8rem; margin-top: 12px; color: var(--bad); white-space: pre-line; }
+
+  /* 탭 */
+  .tabs { display: flex; gap: 8px; margin: 24px 0 16px; }
+  .tabs button { border: 1px solid var(--border); background: var(--bg); border-radius: 99px; padding: 7px 18px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--text-muted); }
+  .tabs button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* 문의 카드 */
+  .card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 12px; }
+  .card.new-item { border-color: var(--new); box-shadow: 0 0 0 3px var(--new-bg); }
+  .card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  .badge { font-size: 0.7rem; font-weight: 700; padding: 2px 9px; border-radius: 99px; }
+  .badge.baby { background: #eef2ff; color: #4338ca; }
+  .badge.haru { background: #fdf2f8; color: #be185d; }
+  .badge.replied { background: var(--ok-bg); color: var(--ok); }
+  .badge.newbadge { background: var(--new-bg); color: var(--new); }
+  .when { font-size: 0.75rem; color: var(--text-muted); margin-left: auto; }
+  .msg { font-size: 0.92rem; white-space: pre-wrap; word-break: break-word; }
+  .meta { font-size: 0.74rem; color: var(--text-muted); margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+  .reply-box { margin-top: 12px; border-top: 1px dashed var(--border); padding-top: 12px; }
+  .reply-box textarea { width: 100%; min-height: 64px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 0.86rem; font-family: inherit; resize: vertical; background: var(--bg); }
+  .reply-actions { display: flex; gap: 8px; margin-top: 8px; align-items: center; }
+  .reply-actions button, .reply-actions a {
+    border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius-md);
+    padding: 6px 14px; font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--text); text-decoration: none;
+  }
+  .reply-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .reply-note { font-size: 0.72rem; color: var(--text-muted); }
+  .save-state { font-size: 0.75rem; }
+  .save-state.ok { color: var(--ok); }
+  .save-state.bad { color: var(--bad); }
+
+  .empty, .sect-err { background: var(--bg); border: 1px dashed var(--border); border-radius: var(--radius-lg); padding: 26px; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+  .sect-err { border-style: solid; color: var(--bad); background: var(--bad-bg); border-color: #fecaca; text-align: left; white-space: pre-line; }
+
+  /* 애널리틱스 */
+  .an-controls { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .an-controls select { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 7px 12px; font-size: 0.85rem; background: var(--bg); }
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .stat { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+  .stat .k { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
+  .stat .v { font-size: 1.45rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
+  .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px 18px 10px; margin-bottom: 14px; }
+  .chart-card h3 { font-size: 0.82rem; margin: 0 0 8px; font-weight: 600; }
+  .chart-card svg { width: 100%; height: auto; display: block; }
+  .bar { fill: var(--accent); }
+  .bar:hover { fill: #4b5563; }
+  .grid-line { stroke: var(--border); stroke-width: 1; }
+  .ax { font-size: 10px; fill: var(--text-muted); }
+  table.top-ev { width: 100%; border-collapse: collapse; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; font-size: 0.84rem; }
+  table.top-ev th, table.top-ev td { text-align: left; padding: 8px 14px; border-top: 1px solid var(--border); }
+  table.top-ev thead th { border-top: none; font-size: 0.72rem; color: var(--text-muted); background: var(--bg-alt); }
+  table.top-ev td:nth-child(2), table.top-ev td:nth-child(3), table.top-ev th:nth-child(2), table.top-ev th:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+  .fb-link { font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; }
+  .fb-link a { text-decoration: underline; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="logo">DESKMOMENT STUDIO <span>/ admin</span></div>
+    <div class="conn" id="conn"></div>
+    <button id="logout" hidden>로그아웃</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div id="login-view">
+    <h1>어드민 로그인</h1>
+    <p>두 Supabase 프로젝트(아기의 하루 · 오늘하루/로또정석)에 같은 계정으로 로그인합니다.</p>
+    <label>이메일</label>
+    <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
+    <label>비밀번호</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <button id="login-btn">로그인</button>
+    <div id="login-msg"></div>
+  </div>
+
+  <div id="app-view" hidden>
+    <div class="tabs">
+      <button data-tab="inq" class="active">문의</button>
+      <button data-tab="an">애널리틱스</button>
+    </div>
+
+    <div id="panel-inq" class="panel active">
+      <div id="inq-errors"></div>
+      <div id="inq-list"></div>
+    </div>
+
+    <div id="panel-an" class="panel">
+      <div class="an-controls">
+        <select id="an-app">
+          <option value="oneulharu">📅 오늘하루</option>
+          <option value="lotto">🎰 로또정석</option>
+          <option value="baby">👶 아기의 하루</option>
+        </select>
+        <select id="an-days">
+          <option value="7">최근 7일</option>
+          <option value="14" selected>최근 14일</option>
+          <option value="30">최근 30일</option>
+        </select>
+      </div>
+      <div id="an-body"><div class="empty">불러오는 중…</div></div>
+    </div>
+  </div>
+
+</div>
+
+<script type="module">
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+const PROJECTS = {
+  baby: {
+    label: '아기의 하루',
+    url: 'https://xnlypjfwqisastckqbwh.supabase.co',
+    anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhubHlwamZ3cWlzYXN0Y2txYndoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMDc4NDYsImV4cCI6MjA5MjU4Mzg0Nn0.pAT8UoKS0GfQeFs4IPgcaAN61rVyLAmaD2ela9HGoE8',
+  },
+  rsscu: {
+    label: '오늘하루·로또',
+    url: 'https://rsscukpbsiiyfgbdfups.supabase.co',
+    anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzc2N1a3Bic2lpeWZnYmRmdXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyODgzNTUsImV4cCI6MjA3Njg2NDM1NX0.H4vbpHPsFS7-z4iWKTbRrZTl0VSqzDlWkum3G0BnYwc',
+  },
+};
+
+const sb = {};
+for (const [key, p] of Object.entries(PROJECTS)) {
+  sb[key] = createClient(p.url, p.anon, {
+    auth: { storageKey: 'dm-admin-' + key, persistSession: true, autoRefreshToken: true },
+  });
+}
+
+const $ = (s) => document.querySelector(s);
+const connected = { baby: false, rsscu: false };
+
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function kst(ts) {
+  try {
+    return new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  } catch { return ts; }
+}
+
+function renderConn() {
+  $('#conn').innerHTML = Object.entries(PROJECTS).map(([k, p]) =>
+    `<span class="chip ${connected[k] ? 'ok' : 'bad'}">${esc(p.label)} ${connected[k] ? '연결됨' : '미연결'}</span>`
+  ).join('');
+}
+
+// ---------- 로그인 ----------
+async function tryLogin(email, password) {
+  const msgs = [];
+  for (const [k, p] of Object.entries(PROJECTS)) {
+    const { error } = await sb[k].auth.signInWithPassword({ email, password });
+    if (error) {
+      msgs.push(`✗ ${p.label}: ${error.message}`);
+    } else {
+      // 화이트리스트 확인 — admin_users 에 내 행이 보여야 진짜 어드민
+      const { data: me } = await sb[k].auth.getUser();
+      const { data: adminRow, error: aerr } = await sb[k].from('admin_users').select('user_id').eq('user_id', me.user.id).maybeSingle();
+      if (aerr || !adminRow) {
+        msgs.push(`✗ ${p.label}: 로그인은 됐지만 admin_users 화이트리스트에 없음 (setup SQL 4번 항목 실행 필요)`);
+        await sb[k].auth.signOut();
+      } else {
+        connected[k] = true;
+      }
+    }
+  }
+  return msgs;
+}
+
+async function restoreSessions() {
+  for (const k of Object.keys(PROJECTS)) {
+    const { data } = await sb[k].auth.getSession();
+    if (data.session) {
+      const { data: adminRow } = await sb[k].from('admin_users').select('user_id').eq('user_id', data.session.user.id).maybeSingle();
+      connected[k] = !!adminRow;
+    }
+  }
+}
+
+function enterApp() {
+  $('#login-view').hidden = true;
+  const av = $('#app-view'); av.hidden = false;
+  $('#logout').hidden = false;
+  renderConn();
+  loadInquiries();
+  subscribeRealtime();
+}
+
+$('#login-btn').addEventListener('click', async () => {
+  const btn = $('#login-btn'); btn.disabled = true;
+  $('#login-msg').textContent = '';
+  const msgs = await tryLogin($('#email').value.trim(), $('#password').value);
+  btn.disabled = false;
+  if (connected.baby || connected.rsscu) {
+    if (msgs.length) $('#login-msg').textContent = msgs.join('\n');
+    enterApp();
+  } else {
+    $('#login-msg').textContent = msgs.join('\n') || '로그인 실패';
+  }
+});
+$('#password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#login-btn').click(); });
+
+$('#logout').addEventListener('click', async () => {
+  for (const k of Object.keys(PROJECTS)) await sb[k].auth.signOut();
+  location.reload();
+});
+
+// ---------- 문의 ----------
+const state = { items: [] };
+
+function normBaby(r) {
+  return {
+    app: 'baby', appLabel: '아기의 하루', badge: 'baby',
+    key: 'baby-' + r.id, id: r.id,
+    message: r.message, createdAt: r.created_at,
+    reply: r.reply, contactEmail: r.contact_email,
+    meta: [r.app_version && 'v' + r.app_version, r.platform, r.os_version && 'OS ' + r.os_version, r.is_guest ? '게스트' : '계정'].filter(Boolean),
+  };
+}
+function normHaru(r) {
+  return {
+    app: 'haru', appLabel: '오늘하루', badge: 'haru',
+    key: 'haru-' + r.device_id + '-' + r.created_at,
+    deviceId: r.device_id,
+    message: r.content, createdAt: r.created_at,
+    reply: r.reply,
+    meta: [r.app_ver && 'v' + r.app_ver, r.platform, '기기 ' + String(r.device_id).slice(0, 8)].filter(Boolean),
+  };
+}
+
+async function loadInquiries() {
+  const errs = [];
+  const items = [];
+  if (connected.baby) {
+    const { data, error } = await sb.baby.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100);
+    if (error) errs.push(`아기의 하루 문의 조회 실패: ${error.message}\n→ admin/setup/babydaily.sql 이 적용됐는지 확인`);
+    else items.push(...data.map(normBaby));
+  }
+  if (connected.rsscu) {
+    const { data, error } = await sb.rsscu.from('oneulharu_feedback').select('*').order('created_at', { ascending: false }).limit(100);
+    if (error) errs.push(`오늘하루 건의 조회 실패: ${error.message}\n→ admin/setup/oneulharu-lotto.sql 이 적용됐는지 확인`);
+    else items.push(...data.map(normHaru));
+  }
+  items.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  state.items = items;
+  $('#inq-errors').innerHTML = errs.map((e) => `<div class="sect-err">${esc(e)}</div>`).join('');
+  renderInquiries();
+}
+
+function cardHtml(it, isNew = false) {
+  const replied = !!(it.reply && it.reply.trim());
+  const mailBtn = it.app === 'baby' && it.contactEmail
+    ? `<a class="mail-btn" data-key="${esc(it.key)}" href="#">📧 메일로 답장</a>` : '';
+  const emailChip = it.app === 'baby'
+    ? `<span>${it.contactEmail ? '✉️ ' + esc(it.contactEmail) : '✉️ 회신 주소 없음'}</span>` : '';
+  const note = it.app === 'baby'
+    ? '저장된 답변은 기록용 — 사용자 전달은 메일로'
+    : '저장하면 앱의 건의 내역에서 사용자에게 보입니다';
+  return `<div class="card ${isNew ? 'new-item' : ''}" data-key="${esc(it.key)}">
+    <div class="card-top">
+      <span class="badge ${it.badge}">${esc(it.appLabel)}</span>
+      ${isNew ? '<span class="badge newbadge">NEW</span>' : ''}
+      ${replied ? '<span class="badge replied">답변됨</span>' : ''}
+      <span class="when">${esc(kst(it.createdAt))}</span>
+    </div>
+    <div class="msg">${esc(it.message)}</div>
+    <div class="meta">${it.meta.map((m) => `<span>${esc(m)}</span>`).join('')}${emailChip}</div>
+    <div class="reply-box">
+      <textarea placeholder="답변…">${esc(it.reply ?? '')}</textarea>
+      <div class="reply-actions">
+        <button class="primary save-btn" data-key="${esc(it.key)}">답변 저장</button>
+        ${mailBtn}
+        <span class="save-state"></span>
+        <span class="reply-note">${note}</span>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderInquiries() {
+  const list = $('#inq-list');
+  if (!state.items.length) {
+    list.innerHTML = '<div class="empty">문의가 없습니다. 새 문의가 오면 실시간으로 여기에 뜹니다.</div>';
+    return;
+  }
+  list.innerHTML = state.items.map((it) => cardHtml(it)).join('');
+}
+
+async function saveReply(key, card) {
+  const it = state.items.find((x) => x.key === key);
+  if (!it) return;
+  const text = card.querySelector('textarea').value;
+  const stateEl = card.querySelector('.save-state');
+  stateEl.textContent = '저장 중…'; stateEl.className = 'save-state';
+  let error;
+  if (it.app === 'baby') {
+    ({ error } = await sb.baby.from('inquiries')
+      .update({ reply: text || null, replied_at: text ? new Date().toISOString() : null })
+      .eq('id', it.id));
+  } else {
+    ({ error } = await sb.rsscu.from('oneulharu_feedback')
+      .update({ reply: text || null })
+      .eq('device_id', it.deviceId).eq('created_at', it.createdAt));
+  }
+  if (error) {
+    stateEl.textContent = '실패: ' + error.message; stateEl.className = 'save-state bad';
+  } else {
+    it.reply = text;
+    stateEl.textContent = '저장됨 ✓'; stateEl.className = 'save-state ok';
+    const badge = card.querySelector('.badge.replied');
+    if (text.trim() && !badge) {
+      card.querySelector('.card-top .when').insertAdjacentHTML('beforebegin', '<span class="badge replied">답변됨</span>');
+    }
+  }
+}
+
+$('#inq-list').addEventListener('click', (e) => {
+  const save = e.target.closest('.save-btn');
+  if (save) { saveReply(save.dataset.key, save.closest('.card')); return; }
+  const mail = e.target.closest('.mail-btn');
+  if (mail) {
+    e.preventDefault();
+    const it = state.items.find((x) => x.key === mail.dataset.key);
+    const reply = mail.closest('.card').querySelector('textarea').value;
+    const body = `안녕하세요, 아기의 하루입니다.\n\n${reply}\n\n---- 보내주신 문의 ----\n${it.message}`;
+    location.href = `mailto:${encodeURIComponent(it.contactEmail)}?subject=${encodeURIComponent('[아기의 하루] 문의 답변드립니다')}&body=${encodeURIComponent(body)}`;
+  }
+});
+
+function subscribeRealtime() {
+  if (connected.baby) {
+    sb.baby.channel('inq-baby')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inquiries' }, (payload) => {
+        const it = normBaby(payload.new);
+        state.items.unshift(it);
+        $('#inq-list').insertAdjacentHTML('afterbegin', cardHtml(it, true));
+        document.title = '● 새 문의 — DeskMoment Studio Admin';
+      })
+      .subscribe();
+  }
+  if (connected.rsscu) {
+    sb.rsscu.channel('inq-haru')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'oneulharu_feedback' }, (payload) => {
+        const it = normHaru(payload.new);
+        state.items.unshift(it);
+        $('#inq-list').insertAdjacentHTML('afterbegin', cardHtml(it, true));
+        document.title = '● 새 문의 — DeskMoment Studio Admin';
+      })
+      .subscribe();
+  }
+}
+
+// ---------- 탭 ----------
+document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x === b));
+  document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+  $('#panel-' + b.dataset.tab).classList.add('active');
+  if (b.dataset.tab === 'an') loadAnalytics();
+  if (b.dataset.tab === 'inq') document.title = 'DeskMoment Studio — Admin';
+}));
+$('#an-app').addEventListener('change', loadAnalytics);
+$('#an-days').addEventListener('change', loadAnalytics);
+
+// ---------- 애널리틱스 ----------
+function fmt(n) { return Number(n).toLocaleString('ko-KR'); }
+
+// 일별 막대 차트 (단일 시리즈 — 범례 불필요, 호버 툴팁은 <title>)
+function barChart(rows, valueKey, labelKey = 'day') {
+  const W = 760, H = 180, PAD_L = 44, PAD_R = 8, PAD_T = 12, PAD_B = 24;
+  const iw = W - PAD_L - PAD_R, ih = H - PAD_T - PAD_B;
+  const max = Math.max(1, ...rows.map((r) => Number(r[valueKey])));
+  const n = rows.length;
+  const gap = 2;
+  const bw = Math.max(2, iw / n - gap);
+  const ticks = [0, Math.round(max / 2), max];
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="일별 추이">`;
+  for (const t of ticks) {
+    const y = PAD_T + ih - (t / max) * ih;
+    s += `<line class="grid-line" x1="${PAD_L}" y1="${y}" x2="${W - PAD_R}" y2="${y}"/>`;
+    s += `<text class="ax" x="${PAD_L - 6}" y="${y + 3}" text-anchor="end">${fmt(t)}</text>`;
+  }
+  rows.forEach((r, i) => {
+    const v = Number(r[valueKey]);
+    const x = PAD_L + i * (iw / n) + gap / 2;
+    const h = Math.max(v > 0 ? 2 : 0, (v / max) * ih);
+    const y = PAD_T + ih - h;
+    const rx = Math.min(3, bw / 2);
+    s += `<path class="bar" d="M${x},${y + h} V${y + rx} Q${x},${y} ${x + rx},${y} H${x + bw - rx} Q${x + bw},${y} ${x + bw},${y + rx} V${y + h} Z">
+      <title>${esc(r[labelKey])} — ${fmt(v)}</title></path>`;
+    const d = new Date(r[labelKey] + 'T00:00:00');
+    if (i === 0 || i === n - 1 || (n > 10 && i % Math.ceil(n / 6) === 0)) {
+      s += `<text class="ax" x="${x + bw / 2}" y="${H - 6}" text-anchor="middle">${d.getMonth() + 1}/${d.getDate()}</text>`;
+    }
+  });
+  s += '</svg>';
+  return s;
+}
+
+async function loadAnalytics() {
+  const app = $('#an-app').value;
+  const days = Number($('#an-days').value);
+  const body = $('#an-body');
+  body.innerHTML = '<div class="empty">불러오는 중…</div>';
+
+  try {
+    if (app === 'baby') {
+      if (!connected.baby) { body.innerHTML = '<div class="sect-err">아기의 하루 프로젝트에 연결돼 있지 않습니다.</div>'; return; }
+      const { data, error } = await sb.baby.rpc('admin_daily_stats', { p_days: days });
+      if (error) throw new Error(error.message + '\n→ admin/setup/babydaily.sql 적용 필요');
+      const sum = (k) => data.reduce((a, r) => a + Number(r[k]), 0);
+      const today = data[data.length - 1] ?? {};
+      body.innerHTML = `
+        <div class="stat-row">
+          <div class="stat"><div class="k">신규 가입 (${days}일)</div><div class="v">${fmt(sum('new_users'))}</div></div>
+          <div class="stat"><div class="k">기록 수 (${days}일)</div><div class="v">${fmt(sum('records'))}</div></div>
+          <div class="stat"><div class="k">오늘 활성 아기</div><div class="v">${fmt(today.active_babies ?? 0)}</div></div>
+        </div>
+        <div class="chart-card"><h3>일별 기록 수 (수유·수면·기저귀)</h3>${barChart(data, 'records')}</div>
+        <div class="chart-card"><h3>일별 활성 아기 수</h3>${barChart(data, 'active_babies')}</div>
+        <p class="fb-link">행동 이벤트 분석은 <a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase 콘솔</a>에서 (서버에는 이벤트 로그 없음)</p>`;
+    } else {
+      if (!connected.rsscu) { body.innerHTML = '<div class="sect-err">오늘하루·로또 프로젝트에 연결돼 있지 않습니다.</div>'; return; }
+      const [daily, top] = await Promise.all([
+        sb.rsscu.rpc('admin_daily_stats', { p_app: app, p_days: days }),
+        sb.rsscu.rpc('admin_top_events', { p_app: app, p_days: days }),
+      ]);
+      if (daily.error) throw new Error(daily.error.message + '\n→ admin/setup/oneulharu-lotto.sql 적용 필요');
+      const data = daily.data;
+      const sum = (k) => data.reduce((a, r) => a + Number(r[k]), 0);
+      const today = data[data.length - 1] ?? {};
+      const topRows = (top.data ?? []).map((r) =>
+        `<tr><td>${esc(r.event)}</td><td>${fmt(r.cnt)}</td><td>${fmt(r.devices)}</td></tr>`).join('');
+      body.innerHTML = `
+        <div class="stat-row">
+          <div class="stat"><div class="k">이벤트 (${days}일)</div><div class="v">${fmt(sum('events'))}</div></div>
+          <div class="stat"><div class="k">오늘 DAU (기기)</div><div class="v">${fmt(today.dau ?? 0)}</div></div>
+          <div class="stat"><div class="k">일평균 이벤트</div><div class="v">${fmt(Math.round(sum('events') / Math.max(1, data.length)))}</div></div>
+        </div>
+        <div class="chart-card"><h3>일별 이벤트 수</h3>${barChart(data, 'events')}</div>
+        <div class="chart-card"><h3>일별 DAU (고유 기기)</h3>${barChart(data, 'dau')}</div>
+        <table class="top-ev"><thead><tr><th>이벤트 (상위 20)</th><th>횟수</th><th>기기</th></tr></thead>
+          <tbody>${topRows || '<tr><td colspan="3">데이터 없음</td></tr>'}</tbody></table>
+        ${app === 'lotto' ? '<p class="fb-link">화면·행동 상세는 Firebase Analytics 병행 수집 중 — 서버 <code>app_events</code> 기준 수치입니다</p>' : ''}`;
+    }
+  } catch (err) {
+    body.innerHTML = `<div class="sect-err">${esc(err.message)}</div>`;
+  }
+}
+
+// ---------- 시작 ----------
+await restoreSessions();
+renderConn();
+if (connected.baby || connected.rsscu) enterApp();
+</script>
+</body>
+</html>
