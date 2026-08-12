@@ -99,12 +99,13 @@ BEGIN
     )::date AS d
   ),
   ev AS (
-    SELECT (e.created_at AT TIME ZONE 'Asia/Seoul')::date AS d, e.device_id
+    -- 두 테이블의 device_id 타입이 다르다 (oneulharu: uuid, lotto: text) — text 로 통일
+    SELECT (e.created_at AT TIME ZONE 'Asia/Seoul')::date AS d, e.device_id::text AS device_id
       FROM public.oneulharu_events e
      WHERE p_app = 'oneulharu'
        AND e.created_at > NOW() - (p_days || ' days')::interval
     UNION ALL
-    SELECT (a.created_at AT TIME ZONE 'Asia/Seoul')::date, a.device_id
+    SELECT (a.created_at AT TIME ZONE 'Asia/Seoul')::date, a.device_id::text
       FROM public.app_events a
      WHERE p_app = 'lotto'
        AND a.created_at > NOW() - (p_days || ' days')::interval
