@@ -10,19 +10,26 @@
     --bg: #ffffff;
     --bg-alt: #f6f6f8;
     --text: #111111;
-    --text-muted: #666666;
-    --border: #e2e2e6;
+    --text-2: #444444;
+    --text-muted: #8a8a93;
+    --border: #e6e6ea;
     --accent: #111827;
-    --accent-soft: #e5e7eb;
-    --radius-lg: 20px;
-    --radius-md: 12px;
-    --shadow-soft: 0 18px 40px rgba(0, 0, 0, 0.06);
+    --accent-soft: #eceef2;
+    --radius-lg: 18px;
+    --radius-md: 11px;
+    --shadow-soft: 0 14px 34px rgba(17, 24, 39, 0.07);
     --ok: #15803d;
     --ok-bg: #ecfdf3;
     --bad: #b91c1c;
     --bad-bg: #fef2f2;
     --new: #b45309;
     --new-bg: #fffbeb;
+    --c-baby: #4f46e5;
+    --c-baby-soft: #eef2ff;
+    --c-haru: #db2777;
+    --c-haru-soft: #fdf2f8;
+    --c-lotto: #d97706;
+    --c-lotto-soft: #fffbeb;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -30,110 +37,166 @@
     margin: 0; padding: 0;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Noto Sans KR", sans-serif;
     color: var(--text); background: var(--bg-alt); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
-  .container { width: 100%; max-width: 960px; margin: 0 auto; padding: 0 20px 80px; }
+  a { color: inherit; text-decoration: none; }
+  .container { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 20px 90px; }
+
+  /* ── 헤더 ───────────────────────────── */
   header.top {
     position: sticky; top: 0; z-index: 50;
-    background: rgba(255,255,255,0.92); backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.88); backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
-  .top-inner { max-width: 960px; margin: 0 auto; padding: 0 20px; height: 58px; display: flex; align-items: center; gap: 10px; }
-  .logo { font-weight: 700; letter-spacing: 0.04em; font-size: 0.92rem; white-space: nowrap; }
-  .logo span { color: var(--text-muted); font-weight: 500; }
-  .top-nav { display: flex; gap: 4px; margin-left: 8px; overflow-x: auto; }
-  .top-nav a { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); padding: 4px 10px; border-radius: 99px; white-space: nowrap; }
-  .top-nav a:hover { background: var(--accent-soft); color: var(--text); }
-  a { color: inherit; text-decoration: none; }
+  .top-inner { max-width: 980px; margin: 0 auto; padding: 0 20px; height: 56px; display: flex; align-items: center; gap: 12px; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: 0.03em; font-size: 0.88rem; white-space: nowrap; }
+  .logo .mark { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.6rem; font-weight: 800; letter-spacing: 0; }
+  .logo span.dim { color: var(--text-muted); font-weight: 500; }
+  .top-nav { display: flex; gap: 2px; margin-left: 6px; overflow-x: auto; scrollbar-width: none; }
+  .top-nav::-webkit-scrollbar { display: none; }
+  .top-nav a { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); padding: 5px 11px; border-radius: 99px; white-space: nowrap; border: 1px solid transparent; }
+  .top-nav a:hover { color: var(--text); background: var(--accent-soft); }
+  .top-nav a.active { color: var(--text); background: var(--bg); border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
   .top-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
-  #days { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 5px 8px; font-size: 0.78rem; background: var(--bg); }
-  #logout { border: 1px solid var(--border); background: var(--bg); border-radius: 8px; padding: 4px 10px; font-size: 0.75rem; cursor: pointer; color: var(--text-muted); }
+  .seg { display: inline-flex; background: var(--accent-soft); border-radius: 99px; padding: 3px; }
+  .seg button { border: none; background: transparent; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); padding: 4px 12px; border-radius: 99px; cursor: pointer; }
+  .seg button.on { background: var(--bg); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+  #logout { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 5px 11px; font-size: 0.74rem; cursor: pointer; color: var(--text-muted); }
   #logout:hover { color: var(--text); }
-  .chip { font-size: 0.7rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; background: var(--accent-soft); color: var(--text-muted); white-space: nowrap; }
+  .chip { font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 99px; background: var(--accent-soft); color: var(--text-muted); white-space: nowrap; }
   .chip.ok { background: var(--ok-bg); color: var(--ok); }
   .chip.bad { background: var(--bad-bg); color: var(--bad); }
 
-  /* 로그인 */
-  #login-view { max-width: 380px; margin: 80px auto 0; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 32px 28px; box-shadow: var(--shadow-soft); }
-  #login-view h1 { font-size: 1.1rem; margin: 0 0 4px; }
-  #login-view p { font-size: 0.82rem; color: var(--text-muted); margin: 0 0 20px; }
-  #login-view label { display: block; font-size: 0.78rem; font-weight: 600; margin: 12px 0 4px; }
-  #login-view input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.9rem; background: var(--bg); }
-  #login-view button { width: 100%; margin-top: 20px; padding: 11px; border: none; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  /* ── 로그인 ───────────────────────────── */
+  #login-view { max-width: 380px; margin: 90px auto 0; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 34px 30px; box-shadow: var(--shadow-soft); }
+  #login-view .mark { width: 38px; height: 38px; border-radius: 12px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.8rem; font-weight: 800; margin-bottom: 14px; }
+  #login-view h1 { font-size: 1.12rem; margin: 0 0 4px; letter-spacing: -0.01em; }
+  #login-view p { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 18px; }
+  #login-view label { display: block; font-size: 0.76rem; font-weight: 700; margin: 13px 0 5px; color: var(--text-2); }
+  #login-view input { width: 100%; padding: 10px 13px; border: 1px solid var(--border); border-radius: var(--radius-md); font-size: 0.9rem; background: var(--bg); transition: border-color .15s; }
+  #login-view input:focus { outline: none; border-color: var(--accent); }
+  #login-view button { width: 100%; margin-top: 22px; padding: 12px; border: none; border-radius: var(--radius-md); background: var(--accent); color: #fff; font-size: 0.9rem; font-weight: 700; cursor: pointer; }
+  #login-view button:hover { opacity: 0.92; }
   #login-view button:disabled { opacity: 0.5; }
-  #login-msg { font-size: 0.8rem; margin-top: 12px; color: var(--bad); white-space: pre-line; }
+  #login-msg { font-size: 0.79rem; margin-top: 12px; color: var(--bad); white-space: pre-line; }
 
-  /* 앱 섹션 */
-  .app-sect { margin-top: 28px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 22px 22px; scroll-margin-top: 70px; }
-  .sect-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 14px; }
-  .sect-head h2 { font-size: 1.05rem; margin: 0; }
-  .sect-head .sub { font-size: 0.76rem; color: var(--text-muted); }
+  /* ── 앱 섹션 ───────────────────────────── */
+  .app-sect { margin-top: 26px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px 24px; scroll-margin-top: 72px; box-shadow: 0 2px 10px rgba(17,24,39,0.03); }
+  .app-sect[data-app="baby"]  { --c: var(--c-baby);  --c-soft: var(--c-baby-soft); }
+  .app-sect[data-app="haru"]  { --c: var(--c-haru);  --c-soft: var(--c-haru-soft); }
+  .app-sect[data-app="lotto"] { --c: var(--c-lotto); --c-soft: var(--c-lotto-soft); }
+  .sect-head { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; flex-wrap: wrap; }
+  .app-ico { width: 40px; height: 40px; border-radius: 13px; background: var(--c-soft); display: grid; place-items: center; font-size: 1.25rem; }
+  .sect-head h2 { font-size: 1.06rem; margin: 0; letter-spacing: -0.01em; line-height: 1.25; }
+  .sect-head .sub { display: block; font-size: 0.74rem; color: var(--text-muted); font-weight: 500; }
+  .live-dot { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
+  .live-dot i { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
   .sect-err { border: 1px solid #fecaca; background: var(--bad-bg); color: var(--bad); border-radius: var(--radius-md); padding: 12px 16px; font-size: 0.82rem; white-space: pre-line; margin-bottom: 10px; }
 
-  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; margin-bottom: 12px; }
-  .stat { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px; }
-  .stat .k { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); letter-spacing: 0.03em; }
-  .stat .v { font-size: 1.3rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.3; }
+  /* 지표 타일 */
+  .stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .stat { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 15px 10px; }
+  .stat .k { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); letter-spacing: 0.02em; }
+  .stat .v { font-size: 1.5rem; font-weight: 800; font-variant-numeric: tabular-nums; line-height: 1.25; letter-spacing: -0.02em; }
+  .stat .d { font-size: 0.72rem; font-weight: 700; margin-top: 1px; }
+  .stat .d.up { color: var(--ok); }
+  .stat .d.down { color: var(--bad); }
+  .stat .d.flat { color: var(--text-muted); }
 
+  /* 차트 */
   .charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-  @media (max-width: 640px) { .charts2 { grid-template-columns: 1fr; } }
-  .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 14px 6px; }
-  .chart-card h3 { font-size: 0.76rem; margin: 0 0 6px; font-weight: 600; color: var(--text-muted); }
+  @media (max-width: 680px) { .charts2 { grid-template-columns: 1fr; } }
+  .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px 15px 8px; }
+  .chart-card h3 { font-size: 0.75rem; margin: 0 0 8px; font-weight: 700; color: var(--text-2); display: flex; justify-content: space-between; align-items: baseline; }
+  .chart-card h3 .last { font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
   .chart-card svg { width: 100%; height: auto; display: block; }
-  .bar { fill: var(--accent); }
-  .bar:hover { fill: #4b5563; }
+  .bar { fill: var(--c); rx: 2px; transition: opacity .1s; }
+  svg.hovering .bar { opacity: 0.45; }
+  svg.hovering .bar.hot { opacity: 1; }
+  .hit { fill: transparent; }
   .grid-line { stroke: var(--border); stroke-width: 1; }
   .ax { font-size: 10px; fill: var(--text-muted); }
 
-  details.top-ev-wrap { margin-bottom: 4px; }
-  details.top-ev-wrap summary { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); cursor: pointer; padding: 4px 0; }
-  table.top-ev { width: 100%; border-collapse: collapse; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; font-size: 0.82rem; margin-top: 6px; }
-  table.top-ev th, table.top-ev td { text-align: left; padding: 7px 12px; border-top: 1px solid var(--border); }
-  table.top-ev thead th { border-top: none; font-size: 0.7rem; color: var(--text-muted); background: var(--bg-alt); }
-  table.top-ev td:nth-child(2), table.top-ev td:nth-child(3), table.top-ev th:nth-child(2), table.top-ev th:nth-child(3) { text-align: right; font-variant-numeric: tabular-nums; }
+  /* 툴팁 */
+  #tip {
+    position: fixed; z-index: 100; pointer-events: none; display: none;
+    background: var(--accent); color: #fff; border-radius: 9px; padding: 7px 11px;
+    font-size: 0.76rem; line-height: 1.45; box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    max-width: 220px;
+  }
+  #tip .t-date { color: rgba(255,255,255,0.65); font-weight: 600; font-size: 0.7rem; }
+  #tip .t-val { font-weight: 800; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+  #tip .t-name { color: rgba(255,255,255,0.85); font-weight: 600; }
 
-  .inq-title { font-size: 0.85rem; font-weight: 700; margin: 16px 0 10px; display: flex; align-items: center; gap: 8px; }
-  .inq-title .cnt { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); }
-  .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; }
+  /* 상위 이벤트 */
+  details.top-ev-wrap { margin-bottom: 4px; }
+  details.top-ev-wrap summary { font-size: 0.79rem; font-weight: 700; color: var(--text-2); cursor: pointer; padding: 5px 0; list-style: none; display: flex; align-items: center; gap: 6px; }
+  details.top-ev-wrap summary::before { content: "▸"; font-size: 0.7rem; color: var(--text-muted); transition: transform .15s; }
+  details[open].top-ev-wrap summary::before { transform: rotate(90deg); }
+  .ev-rows { margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+  .ev-row { display: grid; grid-template-columns: minmax(90px, 1fr) 3fr auto; gap: 10px; align-items: center; font-size: 0.79rem; }
+  .ev-row .name { font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .ev-row .track { height: 14px; background: var(--bg-alt); border-radius: 5px; overflow: hidden; }
+  .ev-row .fill { height: 100%; background: var(--c); opacity: 0.85; border-radius: 5px; min-width: 2px; }
+  .ev-row .num { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 0.74rem; white-space: nowrap; }
+  .ev-row .num b { color: var(--text); font-size: 0.79rem; }
+
+  /* 문의 리스트 */
+  .inq-title { font-size: 0.84rem; font-weight: 800; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; }
+  .inq-title .cnt { font-size: 0.7rem; font-weight: 700; color: var(--c); background: var(--c-soft); padding: 1px 9px; border-radius: 99px; }
+  .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; transition: border-color .2s; }
   .card.new-item { border-color: var(--new); box-shadow: 0 0 0 3px var(--new-bg); }
   .card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-  .badge { font-size: 0.68rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; }
+  .badge { font-size: 0.67rem; font-weight: 800; padding: 2px 9px; border-radius: 99px; }
   .badge.replied { background: var(--ok-bg); color: var(--ok); }
-  .badge.newbadge { background: var(--new-bg); color: var(--new); }
-  .when { font-size: 0.73rem; color: var(--text-muted); margin-left: auto; }
-  .msg { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; }
-  .meta { font-size: 0.72rem; color: var(--text-muted); margin-top: 6px; display: flex; gap: 10px; flex-wrap: wrap; }
-  .reply-box { margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
-  .reply-box textarea { width: 100%; min-height: 56px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 8px 11px; font-size: 0.85rem; font-family: inherit; resize: vertical; background: var(--bg); }
-  .reply-actions { display: flex; gap: 8px; margin-top: 6px; align-items: center; flex-wrap: wrap; }
+  .badge.pending { background: var(--new-bg); color: var(--new); }
+  .badge.newbadge { background: var(--new); color: #fff; }
+  .when { font-size: 0.72rem; color: var(--text-muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+  .msg { font-size: 0.9rem; white-space: pre-wrap; word-break: break-word; color: var(--text); }
+  .meta { font-size: 0.71rem; color: var(--text-muted); margin-top: 7px; display: flex; gap: 4px 6px; flex-wrap: wrap; }
+  .meta span { background: var(--bg); border: 1px solid var(--border); padding: 1px 8px; border-radius: 99px; }
+  .reply-box { margin-top: 11px; }
+  .reply-box textarea { width: 100%; min-height: 54px; border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 12px; font-size: 0.85rem; font-family: inherit; resize: vertical; background: var(--bg); transition: border-color .15s; }
+  .reply-box textarea:focus { outline: none; border-color: var(--c); }
+  .reply-actions { display: flex; gap: 8px; margin-top: 7px; align-items: center; flex-wrap: wrap; }
   .reply-actions button, .reply-actions a.mail-btn {
-    border: 1px solid var(--border); background: var(--bg); border-radius: var(--radius-md);
-    padding: 5px 13px; font-size: 0.78rem; font-weight: 600; cursor: pointer; color: var(--text);
+    border: 1px solid var(--border); background: var(--bg); border-radius: 9px;
+    padding: 6px 14px; font-size: 0.77rem; font-weight: 700; cursor: pointer; color: var(--text);
   }
-  .reply-actions button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-  .reply-note { font-size: 0.7rem; color: var(--text-muted); }
-  .save-state { font-size: 0.73rem; }
+  .reply-actions button.primary { background: var(--c); border-color: var(--c); color: #fff; }
+  .reply-actions button.primary:hover { opacity: 0.9; }
+  .reply-note { font-size: 0.69rem; color: var(--text-muted); }
+  .save-state { font-size: 0.73rem; font-weight: 700; }
   .save-state.ok { color: var(--ok); }
   .save-state.bad { color: var(--bad); }
-  .empty { border: 1px dashed var(--border); border-radius: var(--radius-md); padding: 18px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
-  .fb-link { font-size: 0.76rem; color: var(--text-muted); margin: 8px 0 0; }
+  .empty { border: 1.5px dashed var(--border); border-radius: var(--radius-md); padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.82rem; }
+  .fb-link { font-size: 0.74rem; color: var(--text-muted); margin: 8px 0 0; }
   .fb-link a { text-decoration: underline; }
+
+  /* 스켈레톤 */
+  .sk { border-radius: var(--radius-md); background: linear-gradient(100deg, var(--bg-alt) 40%, #efeff3 50%, var(--bg-alt) 60%); background-size: 200% 100%; animation: sk 1.2s infinite linear; }
+  @keyframes sk { to { background-position: -200% 0; } }
+  .sk-stats { height: 78px; margin-bottom: 12px; }
+  .sk-chart { height: 150px; margin-bottom: 12px; }
+  .sk-card { height: 90px; margin-bottom: 10px; }
 </style>
 </head>
 <body>
 <header class="top">
   <div class="top-inner">
-    <div class="logo">DM STUDIO <span>/ admin</span></div>
+    <div class="logo"><span class="mark">DM</span>STUDIO <span class="dim">admin</span></div>
     <nav class="top-nav" id="top-nav" hidden>
-      <a href="#sect-baby">👶 아기의 하루</a>
-      <a href="#sect-haru">📅 오늘하루</a>
-      <a href="#sect-lotto">🎰 로또정석</a>
+      <a href="#sect-baby" data-sect="sect-baby">👶 아기의 하루</a>
+      <a href="#sect-haru" data-sect="sect-haru">📅 오늘하루</a>
+      <a href="#sect-lotto" data-sect="sect-lotto">🎰 로또정석</a>
     </nav>
     <div class="top-right">
-      <select id="days" hidden>
-        <option value="7">7일</option>
-        <option value="14" selected>14일</option>
-        <option value="30">30일</option>
-      </select>
+      <div class="seg" id="days-seg" hidden>
+        <button data-d="7">7일</button>
+        <button data-d="14" class="on">14일</button>
+        <button data-d="30">30일</button>
+      </div>
       <span class="chip" id="conn-chip" hidden></span>
       <button id="logout" hidden>로그아웃</button>
     </div>
@@ -143,8 +206,9 @@
 <div class="container">
 
   <div id="login-view">
-    <h1>어드민 로그인</h1>
-    <p>두 Supabase 프로젝트(아기의 하루 · 오늘하루/로또정석)에 같은 계정으로 로그인합니다.</p>
+    <div class="mark">DM</div>
+    <h1>어드민 콘솔</h1>
+    <p>아기의 하루 · 오늘하루 · 로또정석의 문의와 지표를 한 곳에서.</p>
     <label>이메일</label>
     <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
     <label>비밀번호</label>
@@ -155,31 +219,44 @@
 
   <div id="app-view" hidden>
 
-    <section class="app-sect" id="sect-baby">
-      <div class="sect-head"><h2>👶 아기의 하루</h2><span class="sub">내부테스트 · 문의 실시간 + 서버 지표</span></div>
+    <section class="app-sect" id="sect-baby" data-app="baby">
+      <div class="sect-head">
+        <div class="app-ico">👶</div>
+        <h2>아기의 하루<span class="sub">육아 기록 · 내부테스트 · 서버 지표 + 문의</span></h2>
+        <div class="live-dot" hidden data-live="baby"><i></i>실시간</div>
+      </div>
       <div id="baby-err"></div>
-      <div id="baby-an"><div class="empty">불러오는 중…</div></div>
-      <div class="inq-title">문의 <span class="cnt" id="baby-cnt"></span></div>
-      <div id="list-baby"><div class="empty">불러오는 중…</div></div>
+      <div id="baby-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      <div class="inq-title">문의 <span class="cnt" id="baby-cnt" hidden></span></div>
+      <div id="list-baby"><div class="sk sk-card"></div></div>
     </section>
 
-    <section class="app-sect" id="sect-haru">
-      <div class="sect-head"><h2>📅 오늘하루</h2><span class="sub">건의 실시간 + 이벤트 지표 · 답변은 앱에 표시됨</span></div>
+    <section class="app-sect" id="sect-haru" data-app="haru">
+      <div class="sect-head">
+        <div class="app-ico">📅</div>
+        <h2>오늘하루<span class="sub">만세력·사주 달력 · 답변은 사용자 앱에 표시됨</span></h2>
+        <div class="live-dot" hidden data-live="haru"><i></i>실시간</div>
+      </div>
       <div id="haru-err"></div>
-      <div id="haru-an"><div class="empty">불러오는 중…</div></div>
-      <div class="inq-title">건의 <span class="cnt" id="haru-cnt"></span></div>
-      <div id="list-haru"><div class="empty">불러오는 중…</div></div>
+      <div id="haru-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      <div class="inq-title">건의 <span class="cnt" id="haru-cnt" hidden></span></div>
+      <div id="list-haru"><div class="sk sk-card"></div></div>
     </section>
 
-    <section class="app-sect" id="sect-lotto">
-      <div class="sect-head"><h2>🎰 로또정석</h2><span class="sub">이벤트 지표 (서버 문의함 없음 — 문의는 스토어/메일)</span></div>
+    <section class="app-sect" id="sect-lotto" data-app="lotto">
+      <div class="sect-head">
+        <div class="app-ico">🎰</div>
+        <h2>로또정석<span class="sub">번호 생성·분석 · 서버 문의함 없음 (스토어/메일)</span></h2>
+      </div>
       <div id="lotto-err"></div>
-      <div id="lotto-an"><div class="empty">불러오는 중…</div></div>
+      <div id="lotto-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
     </section>
 
   </div>
 
 </div>
+
+<div id="tip"></div>
 
 <script type="module">
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -206,35 +283,35 @@ for (const [key, p] of Object.entries(PROJECTS)) {
 
 const $ = (s) => document.querySelector(s);
 const connected = { baby: false, rsscu: false };
-const state = { baby: [], haru: [] };
+const state = { baby: [], haru: [], days: 14 };
+const chartData = {};   // chartId → {rows, valueKey, name}
+let chartSeq = 0;
 
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = (n) => Number(n).toLocaleString('ko-KR');
+const WD = ['일', '월', '화', '수', '목', '금', '토'];
+function kdate(iso) {
+  const d = new Date(iso + 'T00:00:00');
+  return `${d.getMonth() + 1}/${d.getDate()} (${WD[d.getDay()]})`;
 }
 function kst(ts) {
   try {
     return new Date(ts).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
   } catch { return ts; }
 }
-function fmt(n) { return Number(n).toLocaleString('ko-KR'); }
 
-// ---------- 로그인 ----------
+// ── 로그인 ─────────────────────────────
 async function tryLogin(email, password) {
   const msgs = [];
   for (const [k, p] of Object.entries(PROJECTS)) {
     const { error } = await sb[k].auth.signInWithPassword({ email, password });
-    if (error) {
-      msgs.push(`✗ ${p.label}: ${error.message}`);
-    } else {
-      const { data: me } = await sb[k].auth.getUser();
-      const { data: adminRow, error: aerr } = await sb[k].from('admin_users').select('user_id').eq('user_id', me.user.id).maybeSingle();
-      if (aerr || !adminRow) {
-        msgs.push(`✗ ${p.label}: admin_users 화이트리스트에 없음 (setup SQL 확인)`);
-        await sb[k].auth.signOut();
-      } else {
-        connected[k] = true;
-      }
-    }
+    if (error) { msgs.push(`✗ ${p.label}: ${error.message}`); continue; }
+    const { data: me } = await sb[k].auth.getUser();
+    const { data: adminRow, error: aerr } = await sb[k].from('admin_users').select('user_id').eq('user_id', me.user.id).maybeSingle();
+    if (aerr || !adminRow) {
+      msgs.push(`✗ ${p.label}: admin_users 화이트리스트에 없음 (setup SQL 확인)`);
+      await sb[k].auth.signOut();
+    } else connected[k] = true;
   }
   return msgs;
 }
@@ -253,7 +330,7 @@ function enterApp() {
   $('#login-view').hidden = true;
   $('#app-view').hidden = false;
   $('#top-nav').hidden = false;
-  $('#days').hidden = false;
+  $('#days-seg').hidden = false;
   $('#logout').hidden = false;
   const chip = $('#conn-chip');
   const bad = Object.entries(PROJECTS).filter(([k]) => !connected[k]).map(([, p]) => p.label);
@@ -262,6 +339,7 @@ function enterApp() {
   else { chip.className = 'chip ok'; chip.textContent = '모두 연결됨'; }
   loadAll();
   subscribeRealtime();
+  setupScrollSpy();
 }
 
 $('#login-btn').addEventListener('click', async () => {
@@ -272,59 +350,91 @@ $('#login-btn').addEventListener('click', async () => {
   if (connected.baby || connected.rsscu) {
     enterApp();
     if (msgs.length) alert(msgs.join('\n'));
-  } else {
-    $('#login-msg').textContent = msgs.join('\n') || '로그인 실패';
-  }
+  } else $('#login-msg').textContent = msgs.join('\n') || '로그인 실패';
 });
 $('#password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#login-btn').click(); });
 $('#logout').addEventListener('click', async () => {
   for (const k of Object.keys(PROJECTS)) await sb[k].auth.signOut();
   location.reload();
 });
-$('#days').addEventListener('change', loadAll);
+$('#days-seg').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.days = Number(b.dataset.d);
+  document.querySelectorAll('#days-seg button').forEach((x) => x.classList.toggle('on', x === b));
+  loadAll();
+});
 
-// ---------- 데이터 로드 (앱별 섹션에 병렬로) ----------
-async function loadAll() {
-  const days = Number($('#days').value);
-  loadBaby(days);
-  loadHaru(days);
-  loadLotto(days);
+// ── 데이터 로드 ─────────────────────────
+// 증감 계산을 위해 2배 기간을 받아 앞/뒤 반으로 나눈다.
+function split(rows, days) {
+  return { prev: rows.slice(0, rows.length - days), cur: rows.slice(rows.length - days) };
+}
+function delta(cur, prev) {
+  if (!prev) return '<span class="d flat">이전 기간 데이터 없음</span>';
+  const diff = cur - prev;
+  const pct = prev > 0 ? Math.round((diff / prev) * 100) : null;
+  if (diff === 0) return '<span class="d flat">이전 기간과 동일</span>';
+  const cls = diff > 0 ? 'up' : 'down';
+  const arrow = diff > 0 ? '▲' : '▼';
+  return `<span class="d ${cls}">${arrow} ${fmt(Math.abs(diff))}${pct !== null ? ` (${pct > 0 ? '+' : ''}${pct}%)` : ''} vs 이전 ${state.days}일</span>`;
 }
 
-function statHtml(pairs) {
-  return `<div class="stat-row">${pairs.map(([k, v]) =>
-    `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div></div>`).join('')}</div>`;
+function statHtml(items) {
+  return `<div class="stat-row">${items.map(({ k, v, d }) =>
+    `<div class="stat"><div class="k">${esc(k)}</div><div class="v">${esc(v)}</div>${d ?? ''}</div>`).join('')}</div>`;
+}
+
+function chartCard(title, rows, valueKey, name) {
+  const id = 'ch' + (++chartSeq);
+  chartData[id] = { rows, valueKey, name };
+  const last = rows[rows.length - 1];
+  return `<div class="chart-card"><h3>${esc(title)}<span class="last">오늘 ${fmt(last?.[valueKey] ?? 0)}</span></h3>${barChart(id, rows, valueKey)}</div>`;
 }
 
 function topEvHtml(rows) {
-  const trs = (rows ?? []).map((r) =>
-    `<tr><td>${esc(r.event)}</td><td>${fmt(r.cnt)}</td><td>${fmt(r.devices)}</td></tr>`).join('');
-  return `<details class="top-ev-wrap"><summary>이벤트 상위 20</summary>
-    <table class="top-ev"><thead><tr><th>이벤트</th><th>횟수</th><th>기기</th></tr></thead>
-    <tbody>${trs || '<tr><td colspan="3">데이터 없음</td></tr>'}</tbody></table></details>`;
+  const max = Math.max(1, ...(rows ?? []).map((r) => Number(r.cnt)));
+  const lis = (rows ?? []).map((r) => `
+    <div class="ev-row">
+      <div class="name" title="${esc(r.event)}">${esc(r.event)}</div>
+      <div class="track"><div class="fill" style="width:${Math.max(1, Math.round((r.cnt / max) * 100))}%"></div></div>
+      <div class="num"><b>${fmt(r.cnt)}</b> · ${fmt(r.devices)}기기</div>
+    </div>`).join('');
+  return `<details class="top-ev-wrap"><summary>이벤트 상위 ${rows?.length ?? 0}</summary>
+    <div class="ev-rows">${lis || '<div class="empty">데이터 없음</div>'}</div></details>`;
 }
 
-async function loadBaby(days) {
+async function loadAll() {
+  chartSeq = 0; for (const k of Object.keys(chartData)) delete chartData[k];
+  loadBaby(); loadHaru(); loadLotto();
+}
+
+async function loadBaby() {
+  const days = state.days;
   if (!connected.baby) {
     $('#baby-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
     $('#baby-an').innerHTML = ''; $('#list-baby').innerHTML = '';
     return;
   }
   const [an, inq] = await Promise.all([
-    sb.baby.rpc('admin_daily_stats', { p_days: days }),
+    sb.baby.rpc('admin_daily_stats', { p_days: days * 2 }),
     sb.baby.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100),
   ]);
   if (an.error) {
     $('#baby-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`;
   } else {
-    const d = an.data;
-    const sum = (k) => d.reduce((a, r) => a + Number(r[k]), 0);
-    const today = d[d.length - 1] ?? {};
+    const { prev, cur } = split(an.data, days);
+    const sum = (rows, k) => rows.reduce((a, r) => a + Number(r[k]), 0);
+    const today = cur[cur.length - 1] ?? {};
+    const yday = cur[cur.length - 2] ?? {};
     $('#baby-an').innerHTML =
-      statHtml([[`신규 가입 (${days}일)`, fmt(sum('new_users'))], [`기록 수 (${days}일)`, fmt(sum('records'))], ['오늘 활성 아기', fmt(today.active_babies ?? 0)]]) +
+      statHtml([
+        { k: `신규 가입 · ${days}일`, v: fmt(sum(cur, 'new_users')), d: delta(sum(cur, 'new_users'), prev.length ? sum(prev, 'new_users') : null) },
+        { k: `기록 수 · ${days}일`, v: fmt(sum(cur, 'records')), d: delta(sum(cur, 'records'), prev.length ? sum(prev, 'records') : null) },
+        { k: '오늘 활성 아기', v: fmt(today.active_babies ?? 0), d: delta(Number(today.active_babies ?? 0), Number(yday.active_babies ?? 0)) },
+      ]) +
       `<div class="charts2">
-        <div class="chart-card"><h3>일별 기록 수 (수유·수면·기저귀)</h3>${barChart(d, 'records')}</div>
-        <div class="chart-card"><h3>일별 활성 아기</h3>${barChart(d, 'active_babies')}</div>
+        ${chartCard('일별 기록 수 (수유·수면·기저귀)', cur, 'records', '기록')}
+        ${chartCard('일별 활성 아기', cur, 'active_babies', '활성 아기')}
       </div>
       <p class="fb-link">행동 이벤트 분석은 <a href="https://console.firebase.google.com" target="_blank" rel="noopener">Firebase 콘솔</a></p>`;
   }
@@ -336,22 +446,21 @@ async function loadBaby(days) {
   }
 }
 
-async function loadHaru(days) {
+async function loadHaru() {
+  const days = state.days;
   if (!connected.rsscu) {
     $('#haru-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
     $('#haru-an').innerHTML = ''; $('#list-haru').innerHTML = '';
     return;
   }
   const [an, top, fb] = await Promise.all([
-    sb.rsscu.rpc('admin_daily_stats', { p_app: 'oneulharu', p_days: days }),
+    sb.rsscu.rpc('admin_daily_stats', { p_app: 'oneulharu', p_days: days * 2 }),
     sb.rsscu.rpc('admin_top_events', { p_app: 'oneulharu', p_days: days }),
     sb.rsscu.from('oneulharu_feedback').select('*').order('created_at', { ascending: false }).limit(100),
   ]);
-  if (an.error) {
-    $('#haru-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`;
-  } else {
-    $('#haru-an').innerHTML = anBlock(an.data, top.data, days);
-  }
+  $('#haru-an').innerHTML = an.error
+    ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`
+    : anBlock(an.data, top.data);
   if (fb.error) {
     $('#haru-err').innerHTML = `<div class="sect-err">건의 조회 실패: ${esc(fb.error.message)}</div>`;
   } else {
@@ -360,35 +469,42 @@ async function loadHaru(days) {
   }
 }
 
-async function loadLotto(days) {
+async function loadLotto() {
+  const days = state.days;
   if (!connected.rsscu) {
     $('#lotto-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
     $('#lotto-an').innerHTML = '';
     return;
   }
   const [an, top] = await Promise.all([
-    sb.rsscu.rpc('admin_daily_stats', { p_app: 'lotto', p_days: days }),
+    sb.rsscu.rpc('admin_daily_stats', { p_app: 'lotto', p_days: days * 2 }),
     sb.rsscu.rpc('admin_top_events', { p_app: 'lotto', p_days: days }),
   ]);
-  if (an.error) {
-    $('#lotto-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`;
-  } else {
-    $('#lotto-an').innerHTML = anBlock(an.data, top.data, days) +
-      '<p class="fb-link">서버 <code>app_events</code> 기준 — 화면·행동 상세는 Firebase Analytics 병행</p>';
-  }
+  $('#lotto-an').innerHTML = an.error
+    ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`
+    : anBlock(an.data, top.data) + '<p class="fb-link">서버 <code>app_events</code> 기준 — 화면·행동 상세는 Firebase Analytics 병행</p>';
 }
 
-function anBlock(d, top, days) {
-  const sum = (k) => d.reduce((a, r) => a + Number(r[k]), 0);
-  const today = d[d.length - 1] ?? {};
-  return statHtml([[`이벤트 (${days}일)`, fmt(sum('events'))], ['오늘 DAU (기기)', fmt(today.dau ?? 0)], ['일평균 이벤트', fmt(Math.round(sum('events') / Math.max(1, d.length)))]]) +
-    `<div class="charts2">
-      <div class="chart-card"><h3>일별 이벤트</h3>${barChart(d, 'events')}</div>
-      <div class="chart-card"><h3>일별 DAU (고유 기기)</h3>${barChart(d, 'dau')}</div>
-    </div>` + topEvHtml(top);
+function anBlock(rows, top) {
+  const days = state.days;
+  const { prev, cur } = split(rows, days);
+  const sum = (rs, k) => rs.reduce((a, r) => a + Number(r[k]), 0);
+  const today = cur[cur.length - 1] ?? {};
+  const yday = cur[cur.length - 2] ?? {};
+  const avgDau = Math.round(sum(cur, 'dau') / Math.max(1, cur.length));
+  const avgDauPrev = prev.length ? Math.round(sum(prev, 'dau') / prev.length) : null;
+  return statHtml([
+    { k: `이벤트 · ${days}일`, v: fmt(sum(cur, 'events')), d: delta(sum(cur, 'events'), prev.length ? sum(prev, 'events') : null) },
+    { k: '오늘 DAU (기기)', v: fmt(today.dau ?? 0), d: delta(Number(today.dau ?? 0), Number(yday.dau ?? 0)) },
+    { k: '평균 DAU', v: fmt(avgDau), d: delta(avgDau, avgDauPrev) },
+  ]) +
+  `<div class="charts2">
+    ${chartCard('일별 이벤트', cur, 'events', '이벤트')}
+    ${chartCard('일별 DAU (고유 기기)', cur, 'dau', 'DAU')}
+  </div>` + topEvHtml(top);
 }
 
-// ---------- 문의 카드 ----------
+// ── 문의 카드 ─────────────────────────
 function normBaby(r) {
   return {
     app: 'baby', key: 'baby-' + r.id, id: r.id,
@@ -419,7 +535,7 @@ function cardHtml(it, isNew = false) {
   return `<div class="card ${isNew ? 'new-item' : ''}" data-key="${esc(it.key)}">
     <div class="card-top">
       ${isNew ? '<span class="badge newbadge">NEW</span>' : ''}
-      ${replied ? '<span class="badge replied">답변됨</span>' : ''}
+      ${replied ? '<span class="badge replied">답변됨</span>' : '<span class="badge pending">답변 대기</span>'}
       <span class="when">${esc(kst(it.createdAt))}</span>
     </div>
     <div class="msg">${esc(it.message)}</div>
@@ -442,7 +558,10 @@ function renderList(app) {
   el.innerHTML = items.length
     ? items.map((it) => cardHtml(it)).join('')
     : '<div class="empty">아직 없음 — 새로 오면 실시간으로 뜹니다</div>';
-  $('#' + app + '-cnt').textContent = items.length ? items.length + '건' : '';
+  const cnt = $('#' + app + '-cnt');
+  const waiting = items.filter((x) => !(x.reply && x.reply.trim())).length;
+  cnt.hidden = !items.length;
+  cnt.textContent = `${items.length}건${waiting ? ` · 대기 ${waiting}` : ''}`;
 }
 
 async function saveReply(key, card) {
@@ -466,9 +585,7 @@ async function saveReply(key, card) {
   } else {
     it.reply = text;
     stateEl.textContent = '저장됨 ✓'; stateEl.className = 'save-state ok';
-    if (text.trim() && !card.querySelector('.badge.replied')) {
-      card.querySelector('.card-top .when').insertAdjacentHTML('beforebegin', '<span class="badge replied">답변됨</span>');
-    }
+    renderList(it.app);
   }
 }
 
@@ -487,41 +604,40 @@ document.addEventListener('click', (e) => {
 
 function subscribeRealtime() {
   if (connected.baby) {
+    document.querySelector('[data-live="baby"]').hidden = false;
     sb.baby.channel('inq-baby')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inquiries' }, (payload) => {
-        const it = normBaby(payload.new);
-        state.baby.unshift(it);
-        $('#list-baby').querySelector('.empty')?.remove();
-        $('#list-baby').insertAdjacentHTML('afterbegin', cardHtml(it, true));
-        $('#baby-cnt').textContent = state.baby.length + '건';
+        state.baby.unshift(normBaby(payload.new));
+        renderList('baby');
+        $('#list-baby .card')?.classList.add('new-item');
         document.title = '● 새 문의 — DM Studio Admin';
       })
       .subscribe();
   }
   if (connected.rsscu) {
+    document.querySelector('[data-live="haru"]').hidden = false;
     sb.rsscu.channel('inq-haru')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'oneulharu_feedback' }, (payload) => {
-        const it = normHaru(payload.new);
-        state.haru.unshift(it);
-        $('#list-haru').querySelector('.empty')?.remove();
-        $('#list-haru').insertAdjacentHTML('afterbegin', cardHtml(it, true));
-        $('#haru-cnt').textContent = state.haru.length + '건';
+        state.haru.unshift(normHaru(payload.new));
+        renderList('haru');
+        $('#list-haru .card')?.classList.add('new-item');
         document.title = '● 새 문의 — DM Studio Admin';
       })
       .subscribe();
   }
 }
 
-// ---------- 차트 (단일 시리즈 막대, 호버 툴팁) ----------
-function barChart(rows, valueKey, labelKey = 'day') {
-  const W = 380, H = 130, PAD_L = 38, PAD_R = 6, PAD_T = 10, PAD_B = 20;
+// ── 차트: 막대 + 히트영역 + 커서 추적 툴팁 ──────────────
+function barChart(id, rows, valueKey) {
+  const W = 380, H = 132, PAD_L = 38, PAD_R = 6, PAD_T = 10, PAD_B = 20;
   const iw = W - PAD_L - PAD_R, ih = H - PAD_T - PAD_B;
   const max = Math.max(1, ...rows.map((r) => Number(r[valueKey])));
   const n = rows.length;
-  const gap = 2;
-  const bw = Math.max(2, iw / n - gap);
+  const step = iw / n;
+  const gap = Math.min(3, step * 0.25);
+  const bw = Math.max(2, step - gap);
   const ticks = [0, Math.round(max / 2), max];
-  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="일별 추이">`;
+  let s = `<svg id="${id}" viewBox="0 0 ${W} ${H}" role="img" aria-label="일별 추이">`;
   for (const t of ticks) {
     const y = PAD_T + ih - (t / max) * ih;
     s += `<line class="grid-line" x1="${PAD_L}" y1="${y}" x2="${W - PAD_R}" y2="${y}"/>`;
@@ -529,22 +645,75 @@ function barChart(rows, valueKey, labelKey = 'day') {
   }
   rows.forEach((r, i) => {
     const v = Number(r[valueKey]);
-    const x = PAD_L + i * (iw / n) + gap / 2;
-    const h = Math.max(v > 0 ? 2 : 0, (v / max) * ih);
+    const x = PAD_L + i * step + gap / 2;
+    const h = Math.max(v > 0 ? 2 : 0.5, (v / max) * ih);
     const y = PAD_T + ih - h;
     const rx = Math.min(3, bw / 2);
-    s += `<path class="bar" d="M${x},${y + h} V${y + rx} Q${x},${y} ${x + rx},${y} H${x + bw - rx} Q${x + bw},${y} ${x + bw},${y + rx} V${y + h} Z">
-      <title>${esc(r[labelKey])} — ${fmt(v)}</title></path>`;
-    const d = new Date(r[labelKey] + 'T00:00:00');
+    s += `<path class="bar" data-i="${i}" d="M${x},${y + h} V${y + rx} Q${x},${y} ${x + rx},${y} H${x + bw - rx} Q${x + bw},${y} ${x + bw},${y + rx} V${y + h} Z"/>`;
+    const d = new Date(r.day + 'T00:00:00');
     if (i === 0 || i === n - 1 || (n > 10 && i % Math.ceil(n / 5) === 0 && i < n - 2)) {
       s += `<text class="ax" x="${x + bw / 2}" y="${H - 5}" text-anchor="middle">${d.getMonth() + 1}/${d.getDate()}</text>`;
     }
+  });
+  // 히트 영역 — 막대보다 넓게, 세로 전체 (마우스가 어디에 있든 그 날짜를 잡는다)
+  rows.forEach((r, i) => {
+    s += `<rect class="hit" data-i="${i}" x="${PAD_L + i * step}" y="0" width="${step}" height="${H}"/>`;
   });
   s += '</svg>';
   return s;
 }
 
-// ---------- 시작 ----------
+const tip = $('#tip');
+function moveTip(e) {
+  const pad = 14;
+  let x = e.clientX + pad, y = e.clientY - 10;
+  const r = tip.getBoundingClientRect();
+  if (x + r.width > window.innerWidth - 8) x = e.clientX - r.width - pad;
+  if (y + r.height > window.innerHeight - 8) y = window.innerHeight - r.height - 8;
+  tip.style.left = x + 'px';
+  tip.style.top = Math.max(8, y) + 'px';
+}
+document.addEventListener('pointerover', (e) => {
+  const hit = e.target.closest?.('.hit');
+  if (!hit) return;
+  const svg = hit.closest('svg');
+  const data = chartData[svg.id];
+  if (!data) return;
+  const i = Number(hit.dataset.i);
+  const row = data.rows[i];
+  svg.classList.add('hovering');
+  svg.querySelectorAll('.bar').forEach((b) => b.classList.toggle('hot', Number(b.dataset.i) === i));
+  tip.innerHTML = `<div class="t-date">${esc(kdate(row.day))}</div><div class="t-val">${fmt(row[data.valueKey])} <span class="t-name">${esc(data.name)}</span></div>`;
+  tip.style.display = 'block';
+  moveTip(e);
+});
+document.addEventListener('pointermove', (e) => {
+  if (tip.style.display === 'block' && e.target.closest?.('.hit')) moveTip(e);
+});
+document.addEventListener('pointerout', (e) => {
+  const hit = e.target.closest?.('.hit');
+  if (!hit) return;
+  const to = e.relatedTarget;
+  if (to && to.closest?.('svg') === hit.closest('svg')) return;
+  hit.closest('svg').classList.remove('hovering');
+  hit.closest('svg').querySelectorAll('.bar.hot').forEach((b) => b.classList.remove('hot'));
+  tip.style.display = 'none';
+});
+
+// ── 스크롤스파이 ─────────────────────────
+function setupScrollSpy() {
+  const links = [...document.querySelectorAll('.top-nav a')];
+  const io = new IntersectionObserver((entries) => {
+    for (const en of entries) {
+      if (en.isIntersecting) {
+        links.forEach((a) => a.classList.toggle('active', a.dataset.sect === en.target.id));
+      }
+    }
+  }, { rootMargin: '-20% 0px -60% 0px' });
+  document.querySelectorAll('.app-sect').forEach((s) => io.observe(s));
+}
+
+// ── 시작 ─────────────────────────
 await restoreSessions();
 if (connected.baby || connected.rsscu) enterApp();
 </script>
