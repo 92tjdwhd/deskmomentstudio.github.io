@@ -30,6 +30,8 @@
     --c-haru-soft: #fdf2f8;
     --c-lotto: #d97706;
     --c-lotto-soft: #fffbeb;
+    --c-hanjul: #0d9488;
+    --c-hanjul-soft: #f0fdfa;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -89,6 +91,13 @@
   .app-sect[data-app="baby"]  { --c: var(--c-baby);  --c-soft: var(--c-baby-soft); }
   .app-sect[data-app="haru"]  { --c: var(--c-haru);  --c-soft: var(--c-haru-soft); }
   .app-sect[data-app="lotto"] { --c: var(--c-lotto); --c-soft: var(--c-lotto-soft); }
+  .app-sect[data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
+  .rank-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; font-size: 0.82rem; padding: 6px 0; border-bottom: 1px dashed var(--border); }
+  .rank-row:last-child { border-bottom: none; }
+  .rank-row .no { font-weight: 800; color: var(--c); font-variant-numeric: tabular-nums; }
+  .rank-row .q { color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .rank-row .n { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
+  .rank-row .n b { color: var(--text); font-size: 0.82rem; }
   .sect-head { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; flex-wrap: wrap; }
   .app-ico { width: 40px; height: 40px; border-radius: 13px; background: var(--c-soft); display: grid; place-items: center; font-size: 1.25rem; }
   .sect-head h2 { font-size: 1.06rem; margin: 0; letter-spacing: -0.01em; line-height: 1.25; }
@@ -206,6 +215,7 @@
       <a href="#" data-app="baby">👶 아기의 하루<span class="dot" hidden></span></a>
       <a href="#" data-app="haru">📅 오늘하루<span class="dot" hidden></span></a>
       <a href="#" data-app="lotto">🎰 로또정석</a>
+      <a href="#" data-app="hanjul">💬 한줄</a>
     </nav>
     <div class="top-right">
       <span class="chip" id="conn-chip" hidden></span>
@@ -282,6 +292,20 @@
       <div id="lotto-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
     </section>
 
+    <section class="app-sect" id="sect-hanjul" data-app="hanjul">
+      <div class="sect-head">
+        <div class="app-ico">💬</div>
+        <h2>한줄<span class="sub">감정 기반 명언·위로 · 익명 이벤트 (DAU 없음) · 문의는 메일</span></h2>
+        <div class="head-right">
+          <div class="seg sect-days" data-app="hanjul">
+            <button data-d="7">7일</button><button data-d="14" class="on">14일</button><button data-d="30">30일</button>
+          </div>
+        </div>
+      </div>
+      <div id="hanjul-err"></div>
+      <div id="hanjul-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+    </section>
+
   </div>
 
 </div>
@@ -313,7 +337,7 @@ for (const [key, p] of Object.entries(PROJECTS)) {
 
 const $ = (s) => document.querySelector(s);
 const connected = { baby: false, rsscu: false };
-const state = { baby: [], haru: [], days: { baby: 14, haru: 14, lotto: 14 } };
+const state = { baby: [], haru: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14 } };
 const chartData = {};   // chartId → {rows, valueKey, name}
 let chartSeq = 0;
 
@@ -421,7 +445,7 @@ document.addEventListener('click', (e) => {
   const app = b.closest('.sect-days').dataset.app;
   state.days[app] = Number(b.dataset.d);
   b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto })[app]();
+  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul })[app]();
 });
 
 // ── 데이터 로드 ─────────────────────────
@@ -457,7 +481,7 @@ function topEvHtml(rows) {
     <div class="ev-row">
       <div class="name" title="${esc(r.event)}">${esc(r.event)}</div>
       <div class="track"><div class="fill" style="width:${Math.max(1, Math.round((r.cnt / max) * 100))}%"></div></div>
-      <div class="num"><b>${fmt(r.cnt)}</b> · ${fmt(r.devices)}기기</div>
+      <div class="num"><b>${fmt(r.cnt)}</b>${r.devices != null ? ` · ${fmt(r.devices)}기기` : ''}</div>
     </div>`).join('');
   return `<details class="top-ev-wrap"><summary>이벤트 상위 ${rows?.length ?? 0}</summary>
     <div class="ev-rows">${lis || '<div class="empty">데이터 없음</div>'}</div></details>`;
@@ -465,7 +489,7 @@ function topEvHtml(rows) {
 
 async function loadAll() {
   chartSeq = 0; for (const k of Object.keys(chartData)) delete chartData[k];
-  loadBaby(); loadHaru(); loadLotto();
+  loadBaby(); loadHaru(); loadLotto(); loadHanjul();
 }
 
 async function loadBaby() {
@@ -549,6 +573,49 @@ async function loadLotto() {
   $('#lotto-an').innerHTML = an.error
     ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`
     : anBlock(an.data, top.data, days) + '<p class="fb-link">서버 <code>app_events</code> 기준 — 화면·행동 상세는 Firebase Analytics 병행</p>';
+}
+
+async function loadHanjul() {
+  const days = state.days.hanjul;
+  if (!connected.rsscu) {
+    $('#hanjul-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
+    $('#hanjul-an').innerHTML = '';
+    return;
+  }
+  const [an, top, best, worst] = await Promise.all([
+    sb.rsscu.rpc('admin_hj_daily', { p_days: days * 2 }),
+    sb.rsscu.rpc('admin_hj_top_events', { p_days: days }),
+    sb.rsscu.rpc('admin_hj_quote_rank', { p_kind: 'heart', p_days: days, p_limit: 10 }),
+    sb.rsscu.rpc('admin_hj_quote_rank', { p_kind: 'skip', p_days: days, p_limit: 10 }),
+  ]);
+  if (an.error) {
+    $('#hanjul-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}\n→ admin/setup/hanjul.sql 적용 필요</div>`;
+    return;
+  }
+  const { prev, cur } = split(an.data, days);
+  const sum = (rs, k) => rs.reduce((a, r) => a + Number(r[k]), 0);
+  const today = cur[cur.length - 1] ?? {};
+  const yday = cur[cur.length - 2] ?? {};
+  const rankHtml = (rows, unit) => (rows ?? []).map((r, i) =>
+    `<div class="rank-row"><span class="no">${i + 1}</span><span class="q" title="${esc(r.quote)}">${esc(r.quote)}</span><span class="n"><b>${fmt(r.cnt)}</b> ${unit} · 노출 ${fmt(r.views)}</span></div>`
+  ).join('') || '<div class="empty">데이터 없음</div>';
+  $('#hanjul-an').innerHTML =
+    statHtml([
+      { k: `이벤트 · ${days}일`, v: fmt(sum(cur, 'events')), d: delta(sum(cur, 'events'), prev.length ? sum(prev, 'events') : null, `이전 ${days}일`) },
+      { k: '오늘 이벤트', v: fmt(today.events ?? 0), d: delta(Number(today.events ?? 0), Number(yday.events ?? 0), '전일') },
+      { k: `하트 · ${days}일`, v: fmt(sum(cur, 'hearts')), d: delta(sum(cur, 'hearts'), prev.length ? sum(prev, 'hearts') : null, `이전 ${days}일`) },
+      { k: `스킵 · ${days}일`, v: fmt(sum(cur, 'skips')), d: delta(sum(cur, 'skips'), prev.length ? sum(prev, 'skips') : null, `이전 ${days}일`) },
+    ]) +
+    `<div class="charts2">
+      ${chartCard('일별 이벤트 (전체)', cur, 'events', '이벤트')}
+      ${chartCard('일별 하트', cur, 'hearts', '하트')}
+    </div>` +
+    topEvHtml(top.data) +
+    `<div class="charts2" style="margin-top:12px">
+      <div class="chart-card"><h3>💚 사랑받는 문장 (하트 상위)</h3>${rankHtml(best.data, '하트')}</div>
+      <div class="chart-card"><h3>🗑 걸러낼 후보 (스킵 상위)</h3>${rankHtml(worst.data, '스킵')}</div>
+    </div>
+    <p class="fb-link">문의는 서버 문의함 없이 메일(mailto) 방식 · 이벤트에 기기 ID가 없어 DAU는 집계 불가</p>`;
 }
 
 function anBlock(rows, top, days) {
