@@ -147,6 +147,16 @@
   .ev-row .num b { color: var(--text); font-size: 0.79rem; }
 
   /* 문의 리스트 */
+  /* 광고 관리 */
+  .ads-row { display: flex; align-items: center; gap: 10px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 14px; margin-bottom: 6px; font-size: 0.83rem; flex-wrap: wrap; }
+  .ads-row .who { font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; }
+  .ads-row .who small { color: var(--text-muted); font-weight: 500; }
+  .ads-row .spacer { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .ads-btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--text); }
+  .ads-btn:disabled { opacity: 0.5; }
+  .badge.ads-off { background: var(--ok-bg); color: var(--ok); }
+  .badge.ads-on { background: var(--accent-soft); color: var(--text-muted); }
+
   .inq-title { font-size: 0.84rem; font-weight: 800; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; }
   .inq-title .cnt { font-size: 0.7rem; font-weight: 700; color: var(--c); background: var(--c-soft); padding: 1px 9px; border-radius: 99px; }
   .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; transition: border-color .2s; }
@@ -231,6 +241,8 @@
       </div>
       <div id="baby-err"></div>
       <div id="baby-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      <div class="inq-title">광고 관리 <span class="cnt" id="ads-cnt" hidden></span></div>
+      <div id="baby-ads"><div class="sk sk-card"></div></div>
       <div class="inq-title">문의 <span class="cnt" id="baby-cnt" hidden></span></div>
       <div id="list-baby"><div class="sk sk-card"></div></div>
     </section>
@@ -459,10 +471,16 @@ async function loadBaby() {
     $('#baby-an').innerHTML = ''; $('#list-baby').innerHTML = '';
     return;
   }
-  const [an, inq] = await Promise.all([
+  const [an, inq, ads] = await Promise.all([
     sb.baby.rpc('admin_daily_stats', { p_days: days * 2 }),
     sb.baby.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100),
+    sb.baby.rpc('admin_list_ad_settings'),
   ]);
+  if (ads.error) {
+    $('#baby-ads').innerHTML = `<div class="sect-err">광고 설정 조회 실패: ${esc(ads.error.message)}\n→ admin/setup/babydaily-ads.sql 적용 필요</div>`;
+  } else {
+    renderAds(ads.data);
+  }
   if (an.error) {
     $('#baby-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`;
   } else {
@@ -546,6 +564,53 @@ function anBlock(rows, top, days) {
     ${chartCard('일별 DAU (고유 기기)', cur, 'dau', 'DAU')}
   </div>` + topEvHtml(top);
 }
+
+// ── 광고 관리 (계정별 ads_enabled 토글) ──────────
+function renderAds(rows) {
+  const off = rows.filter((r) => !r.ads_enabled).length;
+  const cnt = $('#ads-cnt');
+  cnt.hidden = false;
+  cnt.textContent = `${rows.length}계정${off ? ` · 광고 꺼짐 ${off}` : ''}`;
+  $('#baby-ads').innerHTML = rows.map((r) => {
+    const who = r.email
+      ? `${esc(r.email)}${r.display_name ? ` <small>(${esc(r.display_name)})</small>` : ''}`
+      : `<small>(이메일 없음 · ${esc(String(r.user_id).slice(0, 8))})</small>`;
+    return `<div class="ads-row" data-uid="${esc(r.user_id)}">
+      <div class="who">${who}</div>
+      <div class="spacer">
+        <span class="badge ${r.ads_enabled ? 'ads-on' : 'ads-off'}">${r.ads_enabled ? '광고 켜짐' : '광고 꺼짐'}</span>
+        <button class="ads-btn" data-uid="${esc(r.user_id)}" data-next="${!r.ads_enabled}">${r.ads_enabled ? '광고 끄기' : '다시 켜기'}</button>
+      </div>
+    </div>`;
+  }).join('') || '<div class="empty">계정 없음</div>';
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('.ads-btn');
+  if (!b) return;
+  b.disabled = true;
+  b.textContent = '저장 중…';
+  const { data, error } = await sb.baby.rpc('admin_set_ads', {
+    p_user_id: b.dataset.uid,
+    p_enabled: b.dataset.next === 'true',
+  });
+  if (error) {
+    alert('변경 실패: ' + error.message);
+    b.disabled = false;
+    b.textContent = '재시도';
+    return;
+  }
+  const row = b.closest('.ads-row');
+  const on = data === true;
+  row.querySelector('.badge').className = `badge ${on ? 'ads-on' : 'ads-off'}`;
+  row.querySelector('.badge').textContent = on ? '광고 켜짐' : '광고 꺼짐';
+  b.dataset.next = String(!on);
+  b.textContent = on ? '광고 끄기' : '다시 켜기';
+  b.disabled = false;
+  const rows = [...document.querySelectorAll('#baby-ads .badge.ads-off')].length;
+  const total = [...document.querySelectorAll('#baby-ads .ads-row')].length;
+  $('#ads-cnt').textContent = `${total}계정${rows ? ` · 광고 꺼짐 ${rows}` : ''}`;
+});
 
 // ── 문의 카드 ─────────────────────────
 function normBaby(r) {
