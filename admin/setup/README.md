@@ -16,6 +16,32 @@
    - Email provider가 꺼져 있으면 Authentication → Providers에서 Email 활성화
 2. SQL Editor에서 `oneulharu-lotto.sql` 전체 실행
 
+## 3. DeskMoment 프로젝트 (jfbrqvljvbckrhiivmyy, 별도 계정)
+
+1. 대시보드 → Authentication → Users → **Add user**
+   - 같은 이메일 · **같은 비밀번호** · Auto Confirm 체크
+2. SQL Editor에서 `deskmoment.sql` 전체 실행
+3. `admin/index.html`의 `PROJECTS.dm.anon` 에 **publishable 키**를 넣는다
+   (`web/.env.local` 의 `NEXT_PUBLIC_SUPABASE_ANON_KEY` = `sb_publishable_…` — deskmoment.com
+   브라우저 번들에 이미 실려 있는 공개 키라 공개 repo에 둬도 된다)
+
+### GA4 (트래픽·제휴 클릭)
+
+세션과 아웃바운드 클릭은 Supabase가 아니라 GA4에 있고, GA4 Data API는 서비스 계정 서명을
+요구해 정적 페이지에서 직접 못 읽는다. DeskMoment의 Vercel 서버에 둔
+`web/src/app/api/admin/ga4/route.ts` 가 대신 조회해 준다.
+
+1. Google Cloud → 서비스 계정 생성 → JSON 키 발급 → **Google Analytics Data API** 사용 설정
+2. GA4 속성(`G-YK1VCZ7Q3X`) → 관리 → 속성 액세스 관리 → 그 서비스 계정 이메일을 **뷰어**로 추가
+3. Vercel 환경변수 3개 (Production)
+   - `GA4_PROPERTY_ID` — 숫자 속성 ID (관리 → 속성 설정 상단. `G-…` 측정 ID가 아니다)
+   - `GA4_SA_EMAIL` · `GA4_SA_PRIVATE_KEY` — JSON 키의 `client_email` / `private_key`
+4. 재배포
+
+쇼핑몰별·링크 유형별 클릭 분해는 GA4 → 관리 → **맞춤 정의**에서 이벤트 매개변수
+`store` / `link_type` 을 맞춤 측정기준(이벤트 범위)으로 등록해야 집계된다.
+등록 전에는 그 두 카드만 안내 문구로 바뀌고 세션·클릭·클릭률은 정상으로 나온다.
+
 ## 확인
 
 `https://deskmomentstudio.com/admin/` 접속 → 로그인 → 헤더에 두 프로젝트 모두 "연결됨" 뱃지가 떠야 한다.
@@ -25,7 +51,7 @@
 
 ## 구성 요약
 
-| | 아기의 하루 | 오늘하루 | 로또정석 |
-|---|---|---|---|
-| 문의 테이블 | `inquiries` (실시간·답변 기록·메일 답장) | `oneulharu_feedback` (실시간·답변 → 앱에 표시) | 서버 문의함 없음 |
-| 애널리틱스 | `admin_daily_stats()` — 가입·기록·활성 아기 (행동분석은 Firebase) | `admin_daily_stats('oneulharu')` + `admin_top_events` | `admin_daily_stats('lotto')` + `admin_top_events` |
+| | 아기의 하루 | 오늘하루 | 로또정석 | 한줄 | DeskMoment |
+|---|---|---|---|---|---|
+| 문의 테이블 | `inquiries` (실시간·답변 기록·메일 답장) | `oneulharu_feedback` (실시간·답변 → 앱에 표시) | 서버 문의함 없음 | 서버 문의함 없음 (메일) | `inquiries` (실시간·답변 저장 시 status 변경·메일 답장) |
+| 애널리틱스 | `admin_daily_stats()` — 가입·기록·활성 아기 (행동분석은 Firebase) | `admin_daily_stats('oneulharu')` + `admin_top_events` | `admin_daily_stats('lotto')` + `admin_top_events` | `admin_hj_daily` + `admin_hj_top_events` + `admin_hj_quote_rank` | **GA4** 세션·제휴 클릭(`/api/admin/ga4` 경유) + `admin_dm_daily`/`admin_dm_overview` 콘텐츠·운영 |

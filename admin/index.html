@@ -119,6 +119,7 @@
 
   /* 차트 */
   .charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .charts2[hidden] { display: none; }   /* display:grid 가 [hidden] 을 덮지 않도록 */
   @media (max-width: 680px) { .charts2 { grid-template-columns: 1fr; } }
   .chart-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 13px 15px 8px; }
   .chart-card h3 { font-size: 0.75rem; margin: 0 0 8px; font-weight: 700; color: var(--text-2); display: flex; justify-content: space-between; align-items: baseline; }
@@ -170,6 +171,15 @@
 
   .inq-title { font-size: 0.84rem; font-weight: 800; margin: 18px 0 10px; display: flex; align-items: center; gap: 8px; }
   .inq-title .cnt { font-size: 0.7rem; font-weight: 700; color: var(--c); background: var(--c-soft); padding: 1px 9px; border-radius: 99px; }
+  /* 같은 탭 안에서 지표의 출처(GA4 / Supabase)가 다르므로 제목에 표시한다 */
+  .inq-title .src { font-size: 0.66rem; font-weight: 700; color: var(--text-muted); background: var(--bg-alt); border: 1px solid var(--border); padding: 1px 7px; border-radius: 99px; }
+  .log-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: baseline; font-size: 0.78rem; padding: 5px 0; border-bottom: 1px dashed var(--border); }
+  .log-row:last-child { border-bottom: none; }
+  .log-row .st { font-weight: 800; font-size: 0.68rem; padding: 1px 7px; border-radius: 99px; }
+  .log-row .st.ok { color: #0f766e; background: rgba(13,148,136,0.12); }
+  .log-row .st.bad { color: #b91c1c; background: rgba(220,38,38,0.1); }
+  .log-row .n { color: var(--text-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .log-row .n b { color: var(--text); }
   .card { background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; margin-bottom: 10px; transition: border-color .2s; }
   .card.new-item { border-color: var(--new); box-shadow: 0 0 0 3px var(--new-bg); }
   .card-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
@@ -216,6 +226,7 @@
       <a href="#" data-app="haru">📅 오늘하루<span class="dot" hidden></span></a>
       <a href="#" data-app="lotto">🎰 로또정석</a>
       <a href="#" data-app="hanjul">💬 한줄</a>
+      <a href="#" data-app="dm">🖥 DeskMoment<span class="dot" hidden></span></a>
     </nav>
     <div class="top-right">
       <span class="chip" id="conn-chip" hidden></span>
@@ -229,7 +240,7 @@
   <div id="login-view">
     <div class="mark">DM</div>
     <h1>어드민 콘솔</h1>
-    <p>아기의 하루 · 오늘하루 · 로또정석의 문의와 지표를 한 곳에서.</p>
+    <p>아기의 하루 · 오늘하루 · 로또정석 · 한줄 · DeskMoment의 문의와 지표를 한 곳에서.</p>
     <label>이메일</label>
     <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
     <label>비밀번호</label>
@@ -306,6 +317,41 @@
       <div id="hanjul-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
     </section>
 
+    <section class="app-sect" id="sect-dm" data-app="dm">
+      <div class="sect-head">
+        <div class="app-ico">🖥</div>
+        <h2>DeskMoment<span class="sub">데스크 셋업 큐레이션 웹 · 라이브 (deskmoment.com)</span></h2>
+        <div class="head-right">
+          <div class="live-dot" hidden data-live="dm"><i></i>실시간</div>
+          <div class="seg sect-days" data-app="dm">
+            <button data-d="7">7일</button><button data-d="14" class="on">14일</button><button data-d="30">30일</button>
+          </div>
+        </div>
+      </div>
+      <div id="dm-err"></div>
+
+      <div class="inq-title">트래픽 · 제휴 클릭 <small class="src">GA4</small></div>
+      <div id="dm-ga"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+
+      <div class="inq-title">콘텐츠 · 운영 <small class="src">Supabase</small></div>
+      <div id="dm-ov"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+
+      <div class="charts2" id="dm-ops">
+        <div class="chart-card"><h3>🕷 크롤링 로그</h3><div id="dm-crawl"><div class="sk sk-card"></div></div></div>
+        <div class="chart-card"><h3>🔗 가격 카드 매칭</h3><div id="dm-match"><div class="sk sk-card"></div></div></div>
+      </div>
+
+      <div class="inq-title">문의 <span class="cnt" id="dm-cnt" hidden></span></div>
+      <div id="list-dm"><div class="sk sk-card"></div></div>
+
+      <p class="fb-link">여기서 못 다루는 편집 작업은 <a href="https://deskmoment.com/admin" target="_blank" rel="noopener">deskmoment.com/admin</a> —
+        <a href="https://deskmoment.com/admin/setups" target="_blank" rel="noopener">셋업</a> ·
+        <a href="https://deskmoment.com/admin/products" target="_blank" rel="noopener">제품</a> ·
+        <a href="https://deskmoment.com/admin/matches" target="_blank" rel="noopener">매칭 검수</a> ·
+        <a href="https://deskmoment.com/admin/comments" target="_blank" rel="noopener">댓글</a> ·
+        <a href="https://deskmoment.com/admin/settings" target="_blank" rel="noopener">홈 화면 설정</a></p>
+    </section>
+
   </div>
 
 </div>
@@ -326,7 +372,17 @@ const PROJECTS = {
     url: 'https://rsscukpbsiiyfgbdfups.supabase.co',
     anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJzc2N1a3Bic2lpeWZnYmRmdXBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEyODgzNTUsImV4cCI6MjA3Njg2NDM1NX0.H4vbpHPsFS7-z4iWKTbRrZTl0VSqzDlWkum3G0BnYwc',
   },
+  dm: {
+    label: 'DeskMoment',
+    url: 'https://jfbrqvljvbckrhiivmyy.supabase.co',
+    // deskmoment.com 브라우저 번들에 이미 실려 있는 공개 키 (NEXT_PUBLIC_SUPABASE_ANON_KEY)
+    anon: 'sb_publishable_vXPVOk2jMHY97NJnYlFKHA_3mtpPS39',
+  },
 };
+
+// GA4 는 정적 페이지에서 직접 못 읽는다(서비스 계정 서명 필요) —
+// DeskMoment 의 Vercel 서버에 있는 프록시를 통해 받는다.
+const DM_SITE = 'https://deskmoment.com';
 
 const sb = {};
 for (const [key, p] of Object.entries(PROJECTS)) {
@@ -336,8 +392,8 @@ for (const [key, p] of Object.entries(PROJECTS)) {
 }
 
 const $ = (s) => document.querySelector(s);
-const connected = { baby: false, rsscu: false };
-const state = { baby: [], haru: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14 } };
+const connected = { baby: false, rsscu: false, dm: false };
+const state = { baby: [], haru: [], dm: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14, dm: 14 } };
 const chartData = {};   // chartId → {rows, valueKey, name}
 let chartSeq = 0;
 
@@ -428,7 +484,7 @@ $('#login-btn').addEventListener('click', async () => {
   $('#login-msg').textContent = '';
   const msgs = await tryLogin($('#email').value.trim(), $('#password').value);
   btn.disabled = false;
-  if (connected.baby || connected.rsscu) {
+  if (connected.baby || connected.rsscu || connected.dm) {
     enterApp();
     if (msgs.length) alert(msgs.join('\n'));
   } else $('#login-msg').textContent = msgs.join('\n') || '로그인 실패';
@@ -445,7 +501,7 @@ document.addEventListener('click', (e) => {
   const app = b.closest('.sect-days').dataset.app;
   state.days[app] = Number(b.dataset.d);
   b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul })[app]();
+  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM })[app]();
 });
 
 // ── 데이터 로드 ─────────────────────────
@@ -489,7 +545,7 @@ function topEvHtml(rows) {
 
 async function loadAll() {
   chartSeq = 0; for (const k of Object.keys(chartData)) delete chartData[k];
-  loadBaby(); loadHaru(); loadLotto(); loadHanjul();
+  loadBaby(); loadHaru(); loadLotto(); loadHanjul(); loadDM();
 }
 
 async function loadBaby() {
@@ -618,6 +674,146 @@ async function loadHanjul() {
     <p class="fb-link">문의는 서버 문의함 없이 메일(mailto) 방식 · 이벤트에 기기 ID가 없어 DAU는 집계 불가</p>`;
 }
 
+// ── DeskMoment ─────────────────────────
+// 다른 탭과 달리 출처가 둘이다.
+//   Supabase = 콘텐츠·운영 (셋업/제품/문의/크롤/매칭)  — 다른 앱과 같은 방식
+//   GA4      = 트래픽·아웃바운드 클릭                  — 정적 페이지에서 직접
+//              못 읽어(서비스 계정 서명 필요) DeskMoment 서버의 프록시를 거친다.
+async function loadDM() {
+  const days = state.days.dm;
+  if (!connected.dm) {
+    $('#dm-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음\n→ admin/setup/deskmoment.sql 적용 필요</div>';
+    $('#dm-ga').innerHTML = ''; $('#dm-ov').innerHTML = '';
+    $('#dm-ops').hidden = true; $('#list-dm').innerHTML = '';
+    return;
+  }
+  $('#dm-err').innerHTML = '';
+  $('#dm-ops').hidden = false;
+  loadDMGa(days);   // GA4 는 왕복이 길어 기다리지 않는다 — 각자 채운다
+
+  const [ov, an, inq, logs, mt] = await Promise.all([
+    sb.dm.rpc('admin_dm_overview'),
+    sb.dm.rpc('admin_dm_daily', { p_days: days * 2 }),
+    sb.dm.rpc('admin_dm_inquiries', { p_limit: 100 }),
+    sb.dm.rpc('admin_dm_crawl_logs', { p_limit: 12 }),
+    sb.dm.rpc('admin_dm_matches'),
+  ]);
+
+  if (an.error || ov.error) {
+    const msg = (an.error || ov.error).message;
+    $('#dm-ov').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(msg)}\n→ admin/setup/deskmoment.sql 적용 필요</div>`;
+  } else {
+    const o = ov.data ?? {};
+    const { prev, cur } = split(an.data, days);
+    const sum = (rs, k) => rs.reduce((a, r) => a + Number(r[k]), 0);
+    const period = (k, label) => ({
+      k: `${label} · ${days}일`, v: fmt(sum(cur, k)),
+      d: delta(sum(cur, k), prev.length ? sum(prev, k) : null, `이전 ${days}일`),
+    });
+    $('#dm-ov').innerHTML =
+      statHtml([
+        { k: '공개 셋업', v: fmt(o.setups_public ?? 0), d: `<span class="d flat">전체 ${fmt(o.setups_total ?? 0)} · 대기 ${fmt(o.setups_pending ?? 0)}</span>` },
+        { k: '제품', v: fmt(o.products_total ?? 0), d: `<span class="d flat">제휴 활성 ${fmt(o.aff_products ?? 0)}</span>` },
+        { k: '가입 사용자', v: fmt(o.users_total ?? 0), d: `<span class="d flat">댓글 ${fmt(o.comments_total ?? 0)}</span>` },
+        { k: '미답변 문의', v: fmt(o.inquiries_pending ?? 0), d: `<span class="d flat">전체 ${fmt(o.inquiries_total ?? 0)} · 신고 대기 ${fmt(o.reports_pending ?? 0)}</span>` },
+      ]) +
+      statHtml([period('setups', '신규 셋업'), period('products', '신규 제품'), period('signups', '신규 가입'), period('comments', '댓글')]) +
+      `<div class="charts2">
+        ${chartCard('일별 신규 셋업', cur, 'setups', '셋업')}
+        ${chartCard('일별 신규 제품', cur, 'products', '제품')}
+      </div>
+      <div class="charts2">
+        ${chartCard('일별 신규 가입', cur, 'signups', '가입')}
+        ${chartCard('일별 댓글', cur, 'comments', '댓글')}
+      </div>`;
+  }
+
+  $('#dm-crawl').innerHTML = logs.error
+    ? `<div class="sect-err">${esc(logs.error.message)}</div>`
+    : ((logs.data ?? []).map((l) => {
+        const ok = l.status === 'success' || l.status === 'completed' || l.status === 'ok';
+        return `<div class="log-row">
+          <span class="st ${ok ? 'ok' : 'bad'}">${esc(l.status ?? '?')}</span>
+          <span class="q" title="${esc(l.error_message ?? '')}">${esc(l.source ?? '')}<small> ${esc(kst(l.started_at))}</small></span>
+          <span class="n">발견 <b>${fmt(l.items_found ?? 0)}</b> · 신규 <b>${fmt(l.items_new ?? 0)}</b> · 갱신 ${fmt(l.items_updated ?? 0)}</span>
+        </div>`;
+      }).join('') || '<div class="empty">로그 없음</div>');
+
+  $('#dm-match').innerHTML = mt.error
+    ? `<div class="sect-err">${esc(mt.error.message)}</div>`
+    : ((mt.data ?? []).map((m) => `<div class="log-row">
+          <span class="st ${m.confidence === 'exact' ? 'ok' : 'bad'}">${esc(m.confidence)}</span>
+          <span class="q">${esc(m.store)}${Number(m.demoted) ? ` <small>강등 ${fmt(m.demoted)}</small>` : ''}</span>
+          <span class="n"><b>${fmt(m.cnt)}</b>건 · 최근 ${esc(kst(m.last_at))}</span>
+        </div>`).join('') || '<div class="empty">매칭 없음 — 네이버 쇼핑 검색 API 종료(2026-07-31) 이후 정지 상태</div>');
+
+  if (inq.error) {
+    $('#dm-err').innerHTML = `<div class="sect-err">문의 조회 실패: ${esc(inq.error.message)}</div>`;
+  } else {
+    state.dm = (inq.data ?? []).map(normDM);
+    renderList('dm');
+  }
+}
+
+// GA4 — DeskMoment 서버(/api/admin/ga4)가 서비스 계정으로 대신 조회해 준다.
+async function loadDMGa(days) {
+  const el = $('#dm-ga');
+  const { data: { session } } = await sb.dm.auth.getSession();
+  if (!session) { el.innerHTML = '<div class="sect-err">세션 없음 — 다시 로그인</div>'; return; }
+
+  let res, body;
+  try {
+    res = await fetch(`${DM_SITE}/api/admin/ga4?days=${days}`, {
+      headers: { Authorization: 'Bearer ' + session.access_token },
+    });
+    body = await res.json();
+  } catch (e) {
+    el.innerHTML = `<div class="sect-err">GA4 프록시에 닿지 못함: ${esc(String(e))}\n→ deskmoment.com 에 /api/admin/ga4 배포 확인</div>`;
+    return;
+  }
+  if (!res.ok || body.error) {
+    el.innerHTML = `<div class="sect-err">GA4 조회 실패: ${esc(body.error ?? res.status)}\n→ Vercel 환경변수 GA4_PROPERTY_ID · GA4_SA_EMAIL · GA4_SA_PRIVATE_KEY 확인 (서비스 계정이 GA4 속성 뷰어여야 함)</div>`;
+    return;
+  }
+
+  const rows = body.rows ?? [];
+  const sum = (k) => rows.reduce((a, r) => a + Number(r[k] || 0), 0);
+  const sessions = sum('sessions'), clicks = sum('clicks'), users = sum('users');
+  // 개편안 Step 3 판정의 근거가 되는 값 — 공개 벤치마크가 없어 실측이 유일하다.
+  const ctr = sessions ? (clicks / sessions) * 100 : 0;
+
+  el.innerHTML =
+    statHtml([
+      { k: `세션 · ${days}일`, v: fmt(sessions), d: `<span class="d flat">사용자 ${fmt(users)} · 페이지뷰 ${fmt(sum('views'))}</span>` },
+      { k: `제휴 클릭 · ${days}일`, v: fmt(clicks), d: `<span class="d flat">outbound_click 이벤트</span>` },
+      { k: '세션 → 클릭률', v: ctr.toFixed(2) + '%', d: `<span class="d flat">Step 3 판정 지표</span>` },
+    ]) +
+    `<div class="charts2">
+      ${chartCard('일별 세션', rows, 'sessions', '세션')}
+      ${chartCard('일별 제휴 클릭', rows, 'clicks', '클릭')}
+    </div>
+    <div class="charts2">
+      <div class="chart-card"><h3>🏬 쇼핑몰별 클릭</h3>${gaBreakdown(body.byStore)}</div>
+      <div class="chart-card"><h3>🔗 링크 유형별 클릭</h3>${gaBreakdown(body.byLinkType)}</div>
+    </div>`;
+}
+
+// store / link_type 은 GA4 "맞춤 측정기준"으로 등록돼 있어야 조회된다 —
+// 미등록이면 이 블록만 안내로 바뀌고 나머지 지표는 그대로 보인다.
+function gaBreakdown(res) {
+  if (!Array.isArray(res)) {
+    return `<div class="empty">${esc(res?.error ?? '데이터 없음')}<br><small>GA4 → 관리 → 맞춤 정의에서 이벤트 매개변수를 맞춤 측정기준으로 등록해야 집계됩니다</small></div>`;
+  }
+  if (!res.length) return '<div class="empty">데이터 없음</div>';
+  const max = Math.max(1, ...res.map((r) => Number(r.cnt)));
+  return `<div class="ev-rows">${res.map((r) => `
+    <div class="ev-row">
+      <div class="name" title="${esc(r.key)}">${esc(r.key)}</div>
+      <div class="track"><div class="fill" style="width:${Math.max(1, Math.round((r.cnt / max) * 100))}%"></div></div>
+      <div class="num"><b>${fmt(r.cnt)}</b></div>
+    </div>`).join('')}</div>`;
+}
+
 function anBlock(rows, top, days) {
   const { prev, cur } = split(rows, days);
   const sum = (rs, k) => rs.reduce((a, r) => a + Number(r[k]), 0);
@@ -721,15 +917,31 @@ function normHaru(r) {
   };
 }
 
+const DM_INQ_TYPE = { question: '질문', feature: '건의', bug: '버그', other: '기타' };
+function normDM(r) {
+  return {
+    app: 'dm', key: 'dm-' + r.id, id: r.id,
+    // 제목과 본문이 따로 있는 유일한 문의함 — 카드에서는 한 덩어리로 보여준다
+    message: [r.title, r.content].filter(Boolean).join('\n'),
+    createdAt: r.created_at,
+    reply: r.admin_reply, contactEmail: r.user_email,
+    meta: [DM_INQ_TYPE[r.type] ?? r.type, r.user_name, r.status === 'closed' && '종료'].filter(Boolean),
+  };
+}
+
+const MAIL_SUBJECT = { baby: '[아기의 하루] 문의 답변드립니다', dm: '[DeskMoment] 문의 답변드립니다' };
+const MAIL_GREETING = { baby: '안녕하세요, 아기의 하루입니다.', dm: '안녕하세요, DeskMoment입니다.' };
+
 function cardHtml(it, isNew = false) {
   const replied = !!(it.reply && it.reply.trim());
-  const mailBtn = it.app === 'baby' && it.contactEmail
+  const mailable = it.app === 'baby' || it.app === 'dm';
+  const mailBtn = mailable && it.contactEmail
     ? `<a class="mail-btn" data-key="${esc(it.key)}" href="#">📧 메일로 답장</a>` : '';
-  const emailChip = it.app === 'baby'
+  const emailChip = mailable
     ? `<span>${it.contactEmail ? '✉️ ' + esc(it.contactEmail) : '✉️ 회신 주소 없음'}</span>` : '';
-  const note = it.app === 'baby'
-    ? '저장된 답변은 기록용 — 사용자 전달은 메일로'
-    : '저장하면 앱의 건의 내역에서 사용자에게 보입니다';
+  const note = it.app === 'haru'
+    ? '저장하면 앱의 건의 내역에서 사용자에게 보입니다'
+    : '저장된 답변은 기록용 — 사용자 전달은 메일로';
   return `<div class="card ${isNew ? 'new-item' : ''}" data-key="${esc(it.key)}">
     <div class="card-top">
       ${isNew ? '<span class="badge newbadge">NEW</span>' : ''}
@@ -763,7 +975,7 @@ function renderList(app) {
 }
 
 async function saveReply(key, card) {
-  const it = [...state.baby, ...state.haru].find((x) => x.key === key);
+  const it = [...state.baby, ...state.haru, ...state.dm].find((x) => x.key === key);
   if (!it) return;
   const text = card.querySelector('textarea').value;
   const stateEl = card.querySelector('.save-state');
@@ -773,6 +985,9 @@ async function saveReply(key, card) {
     ({ error } = await sb.baby.from('inquiries')
       .update({ reply: text || null, replied_at: text ? new Date().toISOString() : null })
       .eq('id', it.id));
+  } else if (it.app === 'dm') {
+    // 답변 유무에 따라 status 까지 함께 바뀐다 (deskmoment.com/admin 과 같은 동작)
+    ({ error } = await sb.dm.rpc('admin_dm_reply_inquiry', { p_id: it.id, p_reply: text }));
   } else {
     ({ error } = await sb.rsscu.from('oneulharu_feedback')
       .update({ reply: text || null })
@@ -793,10 +1008,11 @@ document.addEventListener('click', (e) => {
   const mail = e.target.closest('.mail-btn');
   if (mail) {
     e.preventDefault();
-    const it = state.baby.find((x) => x.key === mail.dataset.key);
+    const it = [...state.baby, ...state.dm].find((x) => x.key === mail.dataset.key);
+    if (!it) return;
     const reply = mail.closest('.card').querySelector('textarea').value;
-    const body = `안녕하세요, 아기의 하루입니다.\n\n${reply}\n\n---- 보내주신 문의 ----\n${it.message}`;
-    location.href = `mailto:${encodeURIComponent(it.contactEmail)}?subject=${encodeURIComponent('[아기의 하루] 문의 답변드립니다')}&body=${encodeURIComponent(body)}`;
+    const body = `${MAIL_GREETING[it.app]}\n\n${reply}\n\n---- 보내주신 문의 ----\n${it.message}`;
+    location.href = `mailto:${encodeURIComponent(it.contactEmail)}?subject=${encodeURIComponent(MAIL_SUBJECT[it.app])}&body=${encodeURIComponent(body)}`;
   }
 });
 
@@ -821,6 +1037,18 @@ function subscribeRealtime() {
         renderList('haru');
         $('#list-haru .card')?.classList.add('new-item');
         bumpDot('haru');
+        document.title = '● 새 문의 — DM Studio Admin';
+      })
+      .subscribe();
+  }
+  if (connected.dm) {
+    document.querySelector('[data-live="dm"]').hidden = false;
+    sb.dm.channel('inq-dm')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'inquiries' }, (payload) => {
+        state.dm.unshift(normDM(payload.new));
+        renderList('dm');
+        $('#list-dm .card')?.classList.add('new-item');
+        bumpDot('dm');
         document.title = '● 새 문의 — DM Studio Admin';
       })
       .subscribe();
