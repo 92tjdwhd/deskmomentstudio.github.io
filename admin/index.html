@@ -32,6 +32,8 @@
     --c-lotto-soft: #fffbeb;
     --c-hanjul: #0d9488;
     --c-hanjul-soft: #f0fdfa;
+    --c-dm: #7c3aed;
+    --c-dm-soft: #f5f3ff;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -92,6 +94,77 @@
   .app-sect[data-app="haru"]  { --c: var(--c-haru);  --c-soft: var(--c-haru-soft); }
   .app-sect[data-app="lotto"] { --c: var(--c-lotto); --c-soft: var(--c-lotto-soft); }
   .app-sect[data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
+  .app-sect[data-app="dm"]    { --c: var(--c-dm);    --c-soft: var(--c-dm-soft); }
+
+  /* ── 앱 안에서 화면을 더 나누는 탭 — 지금은 로또정석만 쓴다 ── */
+  .subnav { display: flex; gap: 2px; margin: 2px 0 14px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  .subnav::-webkit-scrollbar { display: none; }
+  .subnav button { border: none; background: transparent; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); padding: 7px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
+  .subnav button:hover { color: var(--text-2); }
+  .subnav button.on { color: var(--c); border-bottom-color: var(--c); }
+  .subpane[hidden] { display: none; }
+
+  /* ── 퍼널 ── */
+  .funnel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-bottom: 12px; }
+  @media (max-width: 680px) { .funnel { grid-template-columns: repeat(2, 1fr); } }
+  .fn-step { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 6px; text-align: center; }
+  .fn-step .n { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+  .fn-step .l { font-size: 0.69rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+  .fn-step .r { font-size: 0.68rem; font-weight: 800; color: var(--c); margin-top: 4px; }
+
+  /* ── 표 ── */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
+  .tbl th { text-align: left; font-size: 0.68rem; color: var(--text-muted); font-weight: 700; padding: 6px 8px; border-bottom: 1px solid var(--border); }
+  .tbl td { padding: 6px 8px; border-bottom: 1px dashed var(--border); font-variant-numeric: tabular-nums; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl th.num, .tbl td.num { text-align: right; }
+  .tbl-wrap { overflow-x: auto; }
+
+  /* ── 로또 공 ── */
+  .balls { display: flex; gap: 4px; flex-wrap: wrap; }
+  .ball { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 0.72rem; font-weight: 800; color: #fff; font-variant-numeric: tabular-nums; }
+  .ball-1 { background: #f9a825; } .ball-2 { background: #1e88e5; } .ball-3 { background: #e53935; }
+  .ball-4 { background: #546e7a; } .ball-5 { background: #43a047; }
+  .num-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)); gap: 8px; }
+  .num-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px; background: var(--bg); }
+  .num-card .meta { display: flex; justify-content: space-between; font-size: 0.68rem; color: var(--text-muted); margin-bottom: 6px; }
+  .pager { display: flex; gap: 10px; align-items: center; justify-content: center; margin-top: 12px; font-size: 0.78rem; color: var(--text-muted); }
+
+  /* ── 설정 카드 · 폼 ── */
+  .cfg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .cfg-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px; background: var(--bg); }
+  .cfg-card h3 { font-size: 0.82rem; font-weight: 800; margin-bottom: 6px; }
+  .cfg-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px dashed var(--border); }
+  .cfg-row:last-child { border-bottom: none; }
+  .cfg-row .lbl { font-size: 0.79rem; font-weight: 600; }
+  .cfg-row .lbl small { display: block; font-weight: 500; color: var(--text-muted); font-size: 0.7rem; margin-top: 2px; line-height: 1.45; }
+  .cfg-input { border: 1px solid var(--border); border-radius: 9px; padding: 5px 10px; font-size: 0.8rem; width: 110px; text-align: right; font-family: inherit; background: var(--bg); flex: none; }
+  .cfg-input.wide { width: 100%; text-align: left; }
+  .cfg-input:focus { outline: none; border-color: var(--c); }
+  textarea.cfg-input { height: 72px; resize: vertical; }
+  .sw { position: relative; width: 40px; height: 22px; flex: none; }
+  .sw input { opacity: 0; width: 0; height: 0; }
+  .sw span { position: absolute; inset: 0; background: var(--border); border-radius: 99px; cursor: pointer; transition: background .15s; }
+  .sw span::before { content: ''; position: absolute; width: 16px; height: 16px; left: 3px; top: 3px; background: #fff; border-radius: 50%; transition: transform .15s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+  .sw input:checked + span { background: var(--c); }
+  .sw input:checked + span::before { transform: translateX(18px); }
+  .btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 6px 13px; font-size: 0.76rem; font-weight: 700; cursor: pointer; font-family: inherit; color: var(--text-2); }
+  .btn:hover { border-color: var(--text-muted); }
+  .btn.pri { background: var(--c); border-color: var(--c); color: #fff; }
+  .btn.danger { color: var(--bad); border-color: var(--bad); }
+  .btn:disabled { opacity: 0.45; cursor: default; }
+  .btn-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .filter-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; font-size: 0.78rem; color: var(--text-muted); }
+  .filter-row select { border: 1px solid var(--border); border-radius: 9px; padding: 5px 10px; font-size: 0.78rem; font-family: inherit; background: var(--bg); }
+  .notice-card { border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; background: var(--bg); }
+  .notice-card.on { border-left-color: var(--ok); }
+  .notice-card .t { font-size: 0.92rem; font-weight: 700; margin: 8px 0 4px; }
+  .notice-card .b { font-size: 0.79rem; color: var(--text-2); }
+  .notice-card .x { font-size: 0.69rem; color: var(--text-muted); margin-top: 6px; word-break: break-all; }
+  .combo { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px; margin-bottom: 8px; background: var(--bg); }
+  .combo .cap { font-size: 0.7rem; font-weight: 800; color: var(--c); margin-bottom: 6px; }
+  .combo .att { font-size: 0.69rem; color: var(--text-muted); margin-top: 6px; }
+  .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); background: var(--accent); color: #fff; font-size: 0.8rem; font-weight: 600; padding: 9px 18px; border-radius: 99px; box-shadow: var(--shadow-soft); z-index: 60; }
   .rank-row { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: baseline; font-size: 0.82rem; padding: 6px 0; border-bottom: 1px dashed var(--border); }
   .rank-row:last-child { border-bottom: none; }
   .rank-row .no { font-weight: 800; color: var(--c); font-variant-numeric: tabular-nums; }
@@ -299,8 +372,37 @@
           </div>
         </div>
       </div>
+
+      <nav class="subnav" id="lotto-subnav">
+        <button data-sub="an" class="on">애널리틱스</button>
+        <button data-sub="config">앱 설정</button>
+        <button data-sub="numbers">번호 저장소</button>
+        <button data-sub="gen">조합 생성</button>
+        <button data-sub="notice">공지 관리</button>
+      </nav>
+
       <div id="lotto-err"></div>
-      <div id="lotto-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+
+      <div class="subpane" data-sub="an">
+        <div id="lotto-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+        <div id="lotto-dash"><div class="sk sk-stats"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="config" hidden>
+        <div id="lotto-config"><div class="sk sk-card"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="numbers" hidden>
+        <div id="lotto-numbers"><div class="sk sk-card"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="gen" hidden>
+        <div id="lotto-gen"></div>
+      </div>
+
+      <div class="subpane" data-sub="notice" hidden>
+        <div id="lotto-notice"><div class="sk sk-card"></div></div>
+      </div>
     </section>
 
     <section class="app-sect" id="sect-hanjul" data-app="hanjul">
@@ -629,6 +731,7 @@ async function loadLotto() {
   $('#lotto-an').innerHTML = an.error
     ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`
     : anBlock(an.data, top.data, days) + '<p class="fb-link">서버 <code>app_events</code> 기준 — 화면·행동 상세는 Firebase Analytics 병행</p>';
+  loadLtDash(days);
 }
 
 async function loadHanjul() {
@@ -673,6 +776,336 @@ async function loadHanjul() {
     </div>
     <p class="fb-link">문의는 서버 문의함 없이 메일(mailto) 방식 · 이벤트에 기기 ID가 없어 DAU는 집계 불가</p>`;
 }
+
+// ── 로또정석 어드민 ──────────────────────
+// 로또정석은 자체 어드민(admin/dashboard.html)이 공유 비밀키로 인증한다.
+// 이 콘솔은 공개 repo 라 키를 실을 수 없어, rsscu 에 admin_users 로 검사하는
+// 래퍼(admin_lt_*)를 두고 그쪽만 부른다. 키는 DB 의 private 스키마에만 있다.
+// → admin/setup/lotto-admin.sql
+const ltState = { sub: 'an', page: 1, round: null, method: null };
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2400);
+}
+
+// 하위 탭 전환 — 기간 세그먼트는 애널리틱스에서만 의미가 있어 같이 감춘다
+$('#lotto-subnav').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  ltState.sub = b.dataset.sub;
+  $('#lotto-subnav').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  document.querySelectorAll('#sect-lotto .subpane').forEach((p) => { p.hidden = p.dataset.sub !== ltState.sub; });
+  document.querySelector('.sect-days[data-app="lotto"]').style.visibility = ltState.sub === 'an' ? '' : 'hidden';
+  ({ config: loadLtConfig, numbers: loadLtNumbers, gen: renderLtGen, notice: loadLtNotices }[ltState.sub] ?? (() => {}))();
+});
+
+// 래퍼는 성공/실패를 { error: ... } 로도, 예외로도 돌려줄 수 있다 — 한 곳에서 정리한다.
+async function ltRpc(fn, params) {
+  const { data, error } = await sb.rsscu.rpc(fn, params ?? {});
+  if (error) return { err: error.message };
+  if (data && data.error) return { err: data.error };
+  return { data };
+}
+function ltErr(msg) {
+  return `<div class="sect-err">${esc(msg)}\n→ admin/setup/lotto-admin.sql 적용 + private.app_secrets 의 lotto_admin_key 확인</div>`;
+}
+
+// ── 1. 애널리틱스: 퍼널 · 화면별 · 버튼별 ──
+async function loadLtDash(days) {
+  const el = $('#lotto-dash');
+  const { data, err } = await ltRpc('admin_lt_dashboard', { p_days: days });
+  if (err) { el.innerHTML = ltErr('로또 어드민 지표 조회 실패: ' + err); return; }
+
+  const s = data.summary ?? {}, f = data.funnel ?? {};
+  const screens = data.screen_stats ?? [], buttons = data.button_stats ?? [];
+  const step = (n, l, r) => `<div class="fn-step"><div class="n">${fmt(n ?? 0)}</div><div class="l">${l}</div>${r != null ? `<div class="r">${r}%</div>` : ''}</div>`;
+
+  el.innerHTML =
+    `<div class="inq-title">퍼널 · ${days}일</div>
+     <div class="funnel">
+       ${step(f.viewers, '화면 조회')}
+       ${step(f.clickers, '버튼 클릭', f.view_to_click_rate)}
+       ${step(f.ad_watchers, '광고 시청', f.click_to_ad_rate)}
+       ${step(f.converters, '광고 전환', f.ad_to_convert_rate)}
+       ${step(f.savers, '저장')}
+     </div>` +
+    statHtml([
+      { k: `총 이벤트 · ${days}일`, v: fmt(s.total_events ?? 0), d: `<span class="d flat">고유 기기 ${fmt(s.unique_devices ?? 0)}</span>` },
+      { k: '화면 조회 · 버튼 클릭', v: `${fmt(s.screen_views ?? 0)} · ${fmt(s.button_clicks ?? 0)}`, d: `<span class="d flat">저장 ${fmt(s.saves ?? 0)}</span>` },
+      { k: '광고 시청 → 전환', v: `${fmt(s.ad_watched ?? 0)} → ${fmt(s.ad_converted ?? 0)}`, d: `<span class="d flat">전환율 ${s.ad_watched ? Math.round((s.ad_converted / s.ad_watched) * 100) : 0}%</span>` },
+    ]) +
+    `<div class="charts2">
+      <div class="chart-card"><h3>📱 화면별 통계</h3><div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>화면</th><th class="num">조회</th><th class="num">클릭</th><th class="num">광고</th><th class="num">전환</th><th class="num">저장</th></tr></thead>
+        <tbody>${screens.map((r) => `<tr><td>${esc(ltScreen(r.screen))}</td><td class="num">${fmt(r.views)}</td><td class="num">${fmt(r.clicks)}</td><td class="num">${fmt(r.ad_watched)}</td><td class="num">${fmt(r.ad_converted)}</td><td class="num">${fmt(r.saves)}</td></tr>`).join('') || '<tr><td colspan="6">데이터 없음</td></tr>'}</tbody>
+      </table></div></div>
+      <div class="chart-card"><h3>🖱 버튼별 클릭</h3><div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>버튼</th><th>화면</th><th class="num">클릭</th><th class="num">기기</th></tr></thead>
+        <tbody>${buttons.map((r) => `<tr><td>${esc(ltButton(r.button))}</td><td>${esc(ltScreen(r.screen))}</td><td class="num">${fmt(r.clicks)}</td><td class="num">${fmt(r.unique_users)}</td></tr>`).join('') || '<tr><td colspan="4">데이터 없음</td></tr>'}</tbody>
+      </table></div></div>
+    </div>`;
+}
+
+// ── 2. 앱 설정 ──
+async function loadLtConfig() {
+  const el = $('#lotto-config');
+  el.innerHTML = '<div class="sk sk-card"></div>';
+  const { data, err } = await ltRpc('admin_lt_config');
+  if (err) { el.innerHTML = ltErr('설정 조회 실패: ' + err); return; }
+  const on = !!data.feature_realtime_enabled, brag = !!data.feature_winner_brag_enabled;
+  el.innerHTML = `
+    <div class="cfg-grid">
+      <div class="cfg-card">
+        <h3>📊 표시 배수</h3>
+        <div class="cfg-row">
+          <div class="lbl">인원수 배율<small>실제 사용자 수에 곱해서 표시합니다</small></div>
+          <input type="number" class="cfg-input" id="lt-mult" value="${esc(data.display_multiplier)}" step="0.1" min="1" max="10">
+        </div>
+        <div class="cfg-row">
+          <div class="lbl" style="color:var(--text-muted);font-weight:500">예시: 실제 100명 → 표시 <b id="lt-mult-prev" style="color:var(--c)">${Math.round(100 * Number(data.display_multiplier || 1))}</b>명</div>
+        </div>
+        <div class="btn-row"><button class="btn pri" id="lt-mult-save">저장</button></div>
+      </div>
+      <div class="cfg-card">
+        <h3>📡 실시간 기능</h3>
+        <div class="cfg-row">
+          <div class="lbl">실시간 오픈 상태<small>ON: 실시간 탭 활성화 / 자동: 금 20:00 ON → 토 20:45 OFF (cron)</small></div>
+          <label class="sw"><input type="checkbox" id="lt-realtime" ${on ? 'checked' : ''}><span></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="lbl">현재</div>
+          <span class="badge ${on ? 'replied' : 'pending'}">${on ? '🟢 OPEN' : '🔴 CLOSED'}</span>
+        </div>
+      </div>
+      <div class="cfg-card">
+        <h3>🏆 1·2등 자랑 배너</h3>
+        <div class="cfg-row">
+          <div class="lbl">자랑 배너 표시<small>실시간탭 Hero 아래 1·2등 적중 사례 노출</small></div>
+          <label class="sw"><input type="checkbox" id="lt-brag" ${brag ? 'checked' : ''}><span></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="lbl">안전장치<small>추첨 전 저장된 번호만 노출 — <code>created_at::date &lt; draw_date</code></small></div>
+        </div>
+      </div>
+    </div>
+    <p class="fb-link">마지막 업데이트: ${data.updated_at ? esc(kst(data.updated_at)) : '-'}</p>`;
+
+  $('#lt-mult').addEventListener('input', function () {
+    $('#lt-mult-prev').textContent = Math.round(100 * (parseFloat(this.value) || 1));
+  });
+  $('#lt-mult-save').addEventListener('click', async () => {
+    const v = parseFloat($('#lt-mult').value);
+    if (isNaN(v) || v < 1 || v > 10) { alert('1~10 사이 값을 입력하세요'); return; }
+    await ltSaveConfig({ p_display_multiplier: v }, `배율 ${v}x 저장됨`);
+  });
+  $('#lt-realtime').addEventListener('change', (e) =>
+    ltSaveConfig({ p_feature_realtime_enabled: e.target.checked }, `실시간 ${e.target.checked ? 'ON' : 'OFF'}`));
+  $('#lt-brag').addEventListener('change', (e) =>
+    ltSaveConfig({ p_feature_winner_brag_enabled: e.target.checked }, `자랑 배너 ${e.target.checked ? 'ON' : 'OFF'}`));
+}
+
+async function ltSaveConfig(params, okMsg) {
+  const { err } = await ltRpc('admin_lt_config_update', params);
+  if (err) { alert('저장 실패: ' + err); }
+  else { toast(okMsg); }
+  loadLtConfig();
+}
+
+// ── 3. 번호 저장소 ──
+async function loadLtNumbers() {
+  const el = $('#lotto-numbers');
+  el.innerHTML = '<div class="sk sk-card"></div>';
+  const { data, err } = await ltRpc('admin_lt_user_numbers', {
+    p_page: ltState.page, p_per_page: 30,
+    p_round: ltState.round ? Number(ltState.round) : null,
+    p_method: ltState.method || null,
+  });
+  if (err) { el.innerHTML = ltErr('번호 조회 실패: ' + err); return; }
+
+  const rounds = data.round_stats ?? [], methods = data.method_stats ?? [], rows = data.data ?? [];
+  el.innerHTML =
+    statHtml([
+      { k: '총 저장 번호', v: fmt(data.total ?? 0), d: `<span class="d flat">최신 ${rounds[0]?.round ?? '-'}회</span>` },
+      { k: '회차 수', v: fmt(rounds.length), d: `<span class="d flat">생성 방법 ${methods.length}종</span>` },
+      { k: '페이지', v: `${fmt(data.page ?? 1)} / ${fmt(data.total_pages ?? 1)}`, d: '<span class="d flat">30개씩</span>' },
+    ]) +
+    `<div class="filter-row">
+      <select id="lt-f-round"><option value="">전체 회차</option>${rounds.map((r) => `<option value="${r.round}" ${String(ltState.round) === String(r.round) ? 'selected' : ''}>${r.round}회 (${fmt(r.count)})</option>`).join('')}</select>
+      <select id="lt-f-method"><option value="">전체 방법</option>${methods.map((m) => `<option value="${esc(m.method)}" ${ltState.method === m.method ? 'selected' : ''}>${esc(ltMethod(m.method))} (${fmt(m.count)})</option>`).join('')}</select>
+      <span>총 ${fmt(data.total ?? 0)}건</span>
+    </div>
+    <div class="num-grid">${rows.map((r) => `
+      <div class="num-card">
+        <div class="meta"><span>${r.target_draw_round ?? '-'}회 · ${esc(ltMethod(r.generation_method))}</span><span>${esc(kst(r.created_at))}</span></div>
+        <div class="balls">${[r.number_1, r.number_2, r.number_3, r.number_4, r.number_5, r.number_6].map((n) => `<div class="ball ${ltBall(n)}">${n}</div>`).join('')}</div>
+      </div>`).join('') || '<div class="empty">저장된 번호 없음</div>'}</div>
+    ${(data.total_pages ?? 1) > 1 ? `<div class="pager">
+      <button class="btn" id="lt-prev" ${(data.page ?? 1) <= 1 ? 'disabled' : ''}>이전</button>
+      <span>${fmt(data.page)} / ${fmt(data.total_pages)}</span>
+      <button class="btn" id="lt-next" ${(data.page ?? 1) >= (data.total_pages ?? 1) ? 'disabled' : ''}>다음</button>
+    </div>` : ''}`;
+
+  $('#lt-f-round').addEventListener('change', (e) => { ltState.round = e.target.value || null; ltState.page = 1; loadLtNumbers(); });
+  $('#lt-f-method').addEventListener('change', (e) => { ltState.method = e.target.value || null; ltState.page = 1; loadLtNumbers(); });
+  $('#lt-prev')?.addEventListener('click', () => { ltState.page = Math.max(1, ltState.page - 1); loadLtNumbers(); });
+  $('#lt-next')?.addEventListener('click', () => { ltState.page = Math.min(data.total_pages, ltState.page + 1); loadLtNumbers(); });
+}
+
+// ── 4. 조합 생성 ──
+function renderLtGen() {
+  $('#lotto-gen').innerHTML = `
+    <div class="cfg-card">
+      <h3>✨ 아무도 선택하지 않은 조합</h3>
+      <div class="cfg-row">
+        <div class="lbl">대상 회차 (선택)<small>비워두면 전체 회차 기준으로 중복을 검사합니다</small></div>
+        <input type="number" class="cfg-input" id="lt-gen-round" placeholder="회차">
+      </div>
+      <div class="btn-row">
+        <button class="btn pri" id="lt-gen-1">조합 생성</button>
+        <button class="btn" id="lt-gen-5">5개 한번에</button>
+      </div>
+    </div>
+    <div id="lt-combos" style="margin-top:12px"></div>`;
+  $('#lt-gen-1').addEventListener('click', () => ltGenerate(1));
+  $('#lt-gen-5').addEventListener('click', () => ltGenerate(5));
+}
+
+async function ltGenerate(count) {
+  const el = $('#lt-combos');
+  const round = $('#lt-gen-round').value;
+  const params = round ? { p_target_round: Number(round) } : {};
+  el.innerHTML = '<div class="sk sk-card"></div>';
+  const out = [];
+  for (let i = 0; i < count; i++) {
+    const { data, err } = await ltRpc('admin_lt_gen_combo', params);
+    if (err) { out.push(ltErr('생성 실패: ' + err)); break; }
+    const nums = data.numbers ?? [];
+    out.push(`<div class="combo">
+      <div class="cap">${count > 1 ? `#${i + 1} ` : ''}UNIQUE COMBINATION</div>
+      <div class="balls">${nums.map((n) => `<div class="ball ${ltBall(n)}">${n}</div>`).join('')}</div>
+      <div class="att">${fmt(data.attempts ?? 0)}회 시도로 생성</div>
+    </div>`);
+  }
+  el.innerHTML = out.join('');
+}
+
+// ── 5. 공지 관리 ──
+async function loadLtNotices() {
+  const el = $('#lotto-notice');
+  el.innerHTML = '<div class="sk sk-card"></div>';
+  const { data, err } = await ltRpc('admin_lt_notices');
+  if (err) { el.innerHTML = ltErr('공지 조회 실패: ' + err); return; }
+  const notices = Array.isArray(data) ? data : (data.notices ?? []);
+  el.innerHTML = `
+    <div class="btn-row" style="margin:0 0 12px"><button class="btn pri" id="lt-notice-new">+ 새 공지</button></div>
+    <div id="lt-notice-form"></div>
+    ${notices.map((n) => `
+      <div class="notice-card ${n.is_active ? 'on' : ''}">
+        <div class="card-top">
+          <span class="badge ${n.is_active ? 'replied' : 'pending'}">${n.is_active ? 'ACTIVE' : 'OFF'}</span>
+          <span class="when">ID ${n.id} · 우선순위 ${n.priority ?? 0} · ${esc(kst(n.created_at))}</span>
+          <span style="margin-left:auto;display:flex;gap:5px">
+            <button class="btn" data-lt-toggle="${n.id}" data-next="${!n.is_active}">${n.is_active ? '비활성화' : '활성화'}</button>
+            <button class="btn" data-lt-edit="${n.id}">수정</button>
+            <button class="btn danger" data-lt-del="${n.id}">삭제</button>
+          </span>
+        </div>
+        <div class="t">${esc(n.title)}</div>
+        ${n.body ? `<div class="b">${esc(n.body)}</div>` : ''}
+        ${n.image_url ? `<div class="x">📷 ${esc(n.image_url)}</div>` : ''}
+        ${n.button_link ? `<div class="x">🔗 ${esc(n.button_link)} (${esc(n.button_text ?? '확인')})</div>` : ''}
+      </div>`).join('') || '<div class="empty">등록된 공지가 없습니다</div>'}`;
+  state.ltNotices = notices;
+  $('#lt-notice-new').addEventListener('click', () => ltNoticeForm(null));
+}
+
+function ltNoticeForm(n) {
+  const e = n ?? {};
+  const isEdit = !!e.id;
+  $('#lt-notice-form').innerHTML = `
+    <div class="cfg-card" style="margin-bottom:12px;border-color:var(--c)">
+      <h3>${isEdit ? `공지 수정 (ID ${e.id})` : '새 공지'}</h3>
+      <div class="cfg-row"><div class="lbl" style="flex:1">제목 *<input class="cfg-input wide" id="ltn-title" value="${esc(e.title ?? '')}" placeholder="공지 제목"></div></div>
+      <div class="cfg-row"><div class="lbl" style="flex:1">내용<textarea class="cfg-input wide" id="ltn-body" placeholder="선택">${esc(e.body ?? '')}</textarea></div></div>
+      <div class="cfg-row"><div class="lbl" style="flex:1">이미지 URL<input class="cfg-input wide" id="ltn-image" value="${esc(e.image_url ?? '')}" placeholder="https://…"></div></div>
+      <div class="cfg-row"><div class="lbl" style="flex:1">버튼 텍스트<input class="cfg-input wide" id="ltn-btext" value="${esc(e.button_text ?? '확인')}"></div></div>
+      <div class="cfg-row"><div class="lbl" style="flex:1">버튼 링크 (앱 내 경로)<input class="cfg-input wide" id="ltn-blink" value="${esc(e.button_link ?? '')}" placeholder="/realtime-combinations"></div></div>
+      <div class="cfg-row"><div class="lbl">우선순위<small>높을수록 먼저</small></div><input type="number" class="cfg-input" id="ltn-priority" value="${Number(e.priority ?? 0)}"></div>
+      <div class="cfg-row"><div class="lbl">활성</div><label class="sw"><input type="checkbox" id="ltn-active" ${e.is_active ?? true ? 'checked' : ''}><span></span></label></div>
+      <div class="btn-row">
+        <button class="btn pri" id="ltn-save">${isEdit ? '수정' : '생성'}</button>
+        <button class="btn" id="ltn-cancel">취소</button>
+      </div>
+    </div>`;
+  $('#ltn-cancel').addEventListener('click', () => { $('#lt-notice-form').innerHTML = ''; });
+  $('#ltn-save').addEventListener('click', () => ltSaveNotice(e.id ?? null));
+}
+
+async function ltSaveNotice(id) {
+  const p = {
+    p_title: $('#ltn-title').value.trim(),
+    p_body: $('#ltn-body').value.trim() || null,
+    p_image_url: $('#ltn-image').value.trim() || null,
+    p_button_text: $('#ltn-btext').value.trim() || '확인',
+    p_button_link: $('#ltn-blink').value.trim() || null,
+    p_is_active: $('#ltn-active').checked,
+    p_priority: parseInt($('#ltn-priority').value, 10) || 0,
+  };
+  if (!p.p_title) { alert('제목을 입력하세요'); return; }
+  const { err } = id
+    ? await ltRpc('admin_lt_notice_update', { ...p, p_id: id })
+    : await ltRpc('admin_lt_notice_create', p);
+  if (err) { alert('저장 실패: ' + err); return; }
+  toast(id ? '공지 수정됨' : '공지 생성됨');
+  loadLtNotices();
+}
+
+document.addEventListener('click', async (e) => {
+  const t = e.target.closest('[data-lt-toggle]');
+  if (t) {
+    const { err } = await ltRpc('admin_lt_notice_update', { p_id: Number(t.dataset.ltToggle), p_is_active: t.dataset.next === 'true' });
+    if (err) alert('변경 실패: ' + err); else toast(`공지 ${t.dataset.next === 'true' ? 'ON' : 'OFF'}`);
+    loadLtNotices();
+    return;
+  }
+  const ed = e.target.closest('[data-lt-edit]');
+  if (ed) { ltNoticeForm((state.ltNotices ?? []).find((n) => String(n.id) === ed.dataset.ltEdit)); return; }
+  const del = e.target.closest('[data-lt-del]');
+  if (del) {
+    const n = (state.ltNotices ?? []).find((x) => String(x.id) === del.dataset.ltDel);
+    if (!confirm(`공지를 삭제합니다 — 되돌릴 수 없습니다.\n\n"${n?.title ?? del.dataset.ltDel}"`)) return;
+    const { err } = await ltRpc('admin_lt_notice_delete', { p_id: Number(del.dataset.ltDel) });
+    if (err) alert('삭제 실패: ' + err); else toast('공지 삭제됨');
+    loadLtNotices();
+  }
+});
+
+// 라벨 — 로또정석 어드민(admin/dashboard.html)과 같은 표기를 유지한다
+function ltBall(n) { return n <= 10 ? 'ball-1' : n <= 20 ? 'ball-2' : n <= 30 ? 'ball-3' : n <= 40 ? 'ball-4' : 'ball-5'; }
+const LT_SCREEN = {
+  home: '🏠 홈', realtime: '📡 실시간', diagnosis_select: '🔍 진단 선택', diagnosis_result: '📊 진단 결과',
+  realtime_combinations: '🎯 조합 분석', unique_combo: '✨ 유니크 조합', number_generation: '🎲 번호 생성',
+  simulation: '🎰 시뮬레이션', statistics: '📈 통계', settings: '⚙️ 설정',
+};
+const LT_BUTTON = {
+  generate_random: '🎲 랜덤 생성', generate_ai: '🤖 AI 추천', generate_statistics: '📊 통계 기반',
+  generate_manual: '✏️ 수동 선택', generate_cross: '🔀 교차 패턴', ai_recommendation: '🤖 AI 번호 받기',
+  number_diagnosis: '🔍 번호 진단', diagnose_with_ad: '🎬 광고보고 진단', realtime_combinations: '📡 실시간 조합',
+  popular_combinations: '🔥 인기 조합', rare_combinations: '💎 희소 조합', unique_combo_ad: '✨ 유니크 조합 광고',
+  number_frequency: '📊 번호별 당첨 횟수', carryover_neighbor: '🔄 이월수·이웃수', extinction_interval: '📉 멸구간 분석',
+  odd_even_sum: '⚖️ 홀짝/합계', long_absence: '⏰ 장기 미출현', compatibility: '💕 찰떡궁합',
+};
+const LT_METHOD = {
+  ai_recommendation: 'AI 추천', pattern_analysis: '패턴 분석', frequency_based: '출현 빈도', quick_pick: '퀵픽',
+  manual_selection: '수동 선택', realtime_popular: '실시간 인기', realtime_rare: '실시간 희소', number_diagnosis: '번호 진단',
+};
+function ltScreen(v) { return LT_SCREEN[v] ?? (v ?? '-'); }
+function ltButton(v) { return LT_BUTTON[v] ?? (v ?? '-'); }
+function ltMethod(v) { return LT_METHOD[v] ?? (v ?? '-'); }
 
 // ── DeskMoment ─────────────────────────
 // 다른 탭과 달리 출처가 둘이다.
