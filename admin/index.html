@@ -1411,7 +1411,7 @@ function anBlock(rows, top, days) {
 // 가입일·최근 로그인·아기/기록 수 + 계정별 광고 on/off.
 // 목록은 admin_list_users() 한 번으로 받아 두고 필터·정렬·검색은 브라우저에서 한다.
 // → admin/setup/babydaily-users.sql (광고 토글 RPC 는 babydaily-ads.sql 그대로)
-const usr = { rows: null, loading: false, preset: 'all', from: '', to: '', ads: 'all', kind: 'all', sort: 'new', q: '' };
+const usr = { rows: null, loading: false, stale: false, preset: 'all', from: '', to: '', ads: 'all', kind: 'all', sort: 'new', q: '' };
 
 // KST 기준 YYYY-MM-DD ('sv-SE' 로케일이 ISO 형식으로 준다)
 const kday = (ts) => { try { return new Date(ts).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }); } catch { return ''; } };
@@ -1433,6 +1433,7 @@ function babyList(r) {
   return Array.isArray(r.babies) ? r.babies : [];
 }
 function babiesCell(r) {
+  if (!Array.isArray(r.babies)) return '<span class="u-ago">?</span>';
   const list = babyList(r);
   if (!list.length) return '<span class="u-ago">없음</span>';
   return `<div class="u-babies">${list.map((b) =>
@@ -1478,6 +1479,8 @@ async function loadBabyUsers(force) {
     return;
   }
   usr.rows = data ?? [];
+  // 예전 버전 함수가 그대로면 아기 열이 없다 — 조용히 '없음' 으로 보이면 안 된다
+  usr.stale = usr.rows.length > 0 && !('babies' in usr.rows[0]);
   renderUsers();
 }
 
@@ -1509,8 +1512,11 @@ function renderUsers() {
   if (!usr.rows) return;
   const list = usrFiltered();
   renderUsrStats(list);
+  const stale = usr.stale
+    ? '<div class="sect-err">아기 이름·개월수가 안 나온다 — 서버 함수가 예전 버전이다.\n→ admin/setup/babydaily-users.sql 을 다시 적용할 것 (DROP 후 재생성한다)</div>'
+    : '';
   const body = list.map(usrRowHtml).join('');
-  $('#baby-users').innerHTML = usrChart(list) + (body
+  $('#baby-users').innerHTML = stale + usrChart(list) + (body
     ? `<div class="tbl-wrap"><table class="tbl usr-tbl">
          <thead><tr><th>회원</th><th>가입일</th><th>최근 로그인</th><th>아기</th><th class="num">기록</th><th>광고</th><th>관리</th></tr></thead>
          <tbody>${body}</tbody></table></div>`
