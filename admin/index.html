@@ -1437,7 +1437,8 @@ async function loadBabyUsers(force) {
   if (usr.loading) return;
   usr.loading = true;
   if (!usr.rows) $('#baby-users').innerHTML = '<div class="sk sk-card"></div>';
-  const { data, error } = await sb.baby.rpc('admin_list_users');
+  // 기본값만 있는 인자라도 명시해서 부른다 — PostgREST 는 넘긴 인자 이름으로 함수를 고른다
+  const { data, error } = await sb.baby.rpc('admin_list_users', { p_limit: 2000 });
   usr.loading = false;
   if (error) {
     $('#usr-stats').innerHTML = '';

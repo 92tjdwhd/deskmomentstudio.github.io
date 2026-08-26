@@ -112,12 +112,18 @@ BEGIN
        AND kcu.column_name = 'author_id'
        AND rc.delete_rule <> 'SET NULL'
   LOOP
-    EXECUTE format('ALTER TABLE public.%I DROP CONSTRAINT %I', r.table_name, r.constraint_name);
-    EXECUTE format(
-      'ALTER TABLE public.%I ADD CONSTRAINT %I '
-      'FOREIGN KEY (author_id) REFERENCES public.profiles(id) ON DELETE SET NULL',
-      r.table_name, r.constraint_name);
-    RAISE NOTICE 'author_id FK → ON DELETE SET NULL: %', r.table_name;
+    -- 한 테이블에서 막혀도 나머지(와 아래 함수 생성)까지 같이 죽지 않게 한다 —
+    -- SQL 편집기는 이 파일 전체를 한 트랜잭션으로 돌린다.
+    BEGIN
+      EXECUTE format('ALTER TABLE public.%I DROP CONSTRAINT %I', r.table_name, r.constraint_name);
+      EXECUTE format(
+        'ALTER TABLE public.%I ADD CONSTRAINT %I '
+        'FOREIGN KEY (author_id) REFERENCES public.profiles(id) ON DELETE SET NULL',
+        r.table_name, r.constraint_name);
+      RAISE NOTICE 'author_id FK → ON DELETE SET NULL: %', r.table_name;
+    EXCEPTION WHEN OTHERS THEN
+      RAISE WARNING 'author_id FK 교정 실패 — % (%): %', r.table_name, r.constraint_name, SQLERRM;
+    END;
   END LOOP;
 END $$;
 
@@ -152,3 +158,7 @@ $$;
 
 COMMENT ON FUNCTION public.admin_delete_user(UUID) IS
   '스튜디오 어드민 콘솔 회원 삭제 — auth.users 삭제(CASCADE). 어드민·본인 계정은 거부.';
+
+-- PostgREST 스키마 캐시 갱신 — 이게 없으면 방금 만든 함수를 한동안
+-- "Could not find the function ... in the schema cache" 로 거절한다.
+NOTIFY pgrst, 'reload schema';
