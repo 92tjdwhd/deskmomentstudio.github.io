@@ -9,7 +9,10 @@
 --   DROP FUNCTION IF EXISTS public.admin_list_users(INT);
 --   DROP FUNCTION IF EXISTS public.admin_delete_user(UUID);
 
-CREATE OR REPLACE FUNCTION public.admin_list_users(p_limit INT DEFAULT 2000)
+-- 반환 열이 바뀌면 CREATE OR REPLACE 가 거부하므로(cannot change return type) 먼저 지운다
+DROP FUNCTION IF EXISTS public.admin_list_users(INT);
+
+CREATE FUNCTION public.admin_list_users(p_limit INT DEFAULT 2000)
 RETURNS TABLE(
   user_id         UUID,
   email           TEXT,
@@ -22,6 +25,7 @@ RETURNS TABLE(
   has_settings    BOOLEAN,
   baby_count      INT,
   owned_baby_count INT,
+  babies          JSONB,
   record_count    BIGINT,
   last_record_at  TIMESTAMPTZ
 )
@@ -51,7 +55,13 @@ BEGIN
     -- 계정을 지우면 '소유한 아기'만 함께 사라지고, 남의 아기에는 접근만 끊긴다.
     SELECT c.user_id AS uid,
            COUNT(*)::INT AS n,
-           COUNT(*) FILTER (WHERE b.owner_id = c.user_id)::INT AS owned
+           COUNT(*) FILTER (WHERE b.owner_id = c.user_id)::INT AS owned,
+           -- 이름과 생일 (개월수는 화면에서 계산 — 매일 달라지므로 저장하지 않는다)
+           jsonb_agg(
+             jsonb_build_object('name', b.name, 'birth', b.birth_date,
+                                'owned', b.owner_id = c.user_id)
+             ORDER BY b.birth_date DESC
+           ) AS js
       FROM public.baby_coparents c
       JOIN public.babies b ON b.id = c.baby_id AND b.deleted = FALSE
      GROUP BY c.user_id
@@ -68,6 +78,7 @@ BEGIN
     (s.user_id IS NOT NULL),
     COALESCE(bagg.n, 0),
     COALESCE(bagg.owned, 0),
+    COALESCE(bagg.js, '[]'::jsonb),
     COALESCE(ragg.n, 0),
     ragg.last_at
   FROM public.profiles p

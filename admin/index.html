@@ -266,6 +266,10 @@
   .u-who small { color: var(--text-muted); font-size: 0.67rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .u-ago { color: var(--text-muted); font-size: 0.68rem; }
   .u-ads { white-space: nowrap; }
+  .u-babies { display: flex; flex-direction: column; gap: 2px; }
+  .u-baby { font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; }
+  .u-baby b { color: var(--text-2); font-weight: 700; font-size: 0.78rem; }
+  .u-baby.co i { font-style: normal; font-size: 0.62rem; font-weight: 800; background: var(--accent-soft); border-radius: 99px; padding: 1px 6px; margin-left: 4px; }
   .charts2.one { grid-template-columns: minmax(0, 470px); }
   .del-btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 4px 10px; font-size: 0.73rem; font-weight: 700; color: var(--bad); cursor: pointer; font-family: inherit; }
   .del-btn:hover { border-color: var(--bad); background: var(--bad-bg); }
@@ -1412,6 +1416,30 @@ const usr = { rows: null, loading: false, preset: 'all', from: '', to: '', ads: 
 // KST 기준 YYYY-MM-DD ('sv-SE' 로케일이 ISO 형식으로 준다)
 const kday = (ts) => { try { return new Date(ts).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }); } catch { return ''; } };
 function shiftDay(iso, n) { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+// 앱과 같은 'N개월 M일' 표기 (record_timeline_screen.dart)
+function babyAge(birth) {
+  if (!birth) return '';
+  const b = new Date(birth + 'T00:00:00Z');
+  const now = new Date(kday(Date.now()) + 'T00:00:00Z');
+  if (now < b) return '출생 전';
+  let m = (now.getUTCFullYear() - b.getUTCFullYear()) * 12 + (now.getUTCMonth() - b.getUTCMonth());
+  let anchor = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + m, b.getUTCDate()));
+  if (anchor > now) { m--; anchor = new Date(Date.UTC(b.getUTCFullYear(), b.getUTCMonth() + m, b.getUTCDate())); }
+  return `${m}개월 ${Math.round((now - anchor) / 86400000)}일`;
+}
+
+// 접근 가능한 아기 — 이름 + 개월수. 남의 아기(공동양육)는 따로 표시한다
+function babyList(r) {
+  return Array.isArray(r.babies) ? r.babies : [];
+}
+function babiesCell(r) {
+  const list = babyList(r);
+  if (!list.length) return '<span class="u-ago">없음</span>';
+  return `<div class="u-babies">${list.map((b) =>
+    `<span class="u-baby${b.owned ? '' : ' co'}"><b>${esc(b.name)}</b> ${esc(babyAge(b.birth))}${
+      b.owned ? '' : '<i>공동</i>'}</span>`).join('')}</div>`;
+}
+
 // 경과 시간이 아니라 KST 달력 날짜 차이 — 어젯밤 가입이 24시간 전이 아니라고
 // '오늘' 로 나오면 안 된다
 function daysAgo(ts) {
@@ -1464,7 +1492,8 @@ function usrFiltered() {
     if (usr.ads === 'off' && r.ads_enabled) return false;
     if (usr.kind === 'guest' && !r.is_guest) return false;
     if (usr.kind === 'email' && r.is_guest) return false;
-    if (q && !`${r.email ?? ''} ${r.display_name ?? ''} ${r.provider ?? ''} ${r.user_id}`.toLowerCase().includes(q)) return false;
+    const hay = `${r.email ?? ''} ${r.display_name ?? ''} ${r.provider ?? ''} ${r.user_id} ${babyList(r).map((b) => b.name).join(' ')}`;
+    if (q && !hay.toLowerCase().includes(q)) return false;
     return true;
   });
   const cmp = {
@@ -1483,7 +1512,7 @@ function renderUsers() {
   const body = list.map(usrRowHtml).join('');
   $('#baby-users').innerHTML = usrChart(list) + (body
     ? `<div class="tbl-wrap"><table class="tbl usr-tbl">
-         <thead><tr><th>회원</th><th>가입일</th><th>최근 로그인</th><th class="num">아기</th><th class="num">기록</th><th>광고</th><th>관리</th></tr></thead>
+         <thead><tr><th>회원</th><th>가입일</th><th>최근 로그인</th><th>아기</th><th class="num">기록</th><th>광고</th><th>관리</th></tr></thead>
          <tbody>${body}</tbody></table></div>`
     : `<div class="empty">조건에 맞는 회원 없음 · 전체 ${fmt(usr.rows.length)}명</div>`);
 }
@@ -1506,7 +1535,7 @@ function usrRowHtml(r) {
     <td><div class="u-who"><b>${esc(name)}</b><small>${esc(sub)}</small></div></td>
     <td>${r.joined_at ? `${esc(kday(r.joined_at))} <span class="u-ago">${esc(daysAgo(r.joined_at))}</span>` : '-'}</td>
     <td>${r.last_sign_in_at ? `${esc(kday(r.last_sign_in_at))} <span class="u-ago">${esc(daysAgo(r.last_sign_in_at))}</span>` : '<span class="u-ago">기록 없음</span>'}</td>
-    <td class="num">${fmt(r.baby_count)}${Number(r.owned_baby_count) !== Number(r.baby_count) ? ` <span class="u-ago">소유 ${fmt(r.owned_baby_count)}</span>` : ''}</td>
+    <td>${babiesCell(r)}</td>
     <td class="num">${fmt(r.record_count)}${r.last_record_at ? ` <span class="u-ago">${esc(kday(r.last_record_at))}</span>` : ''}</td>
     <td class="u-ads">${adsCellHtml(r)}</td>
     <td><button class="del-btn" data-uid="${esc(r.user_id)}">삭제</button></td>
@@ -1534,7 +1563,7 @@ function askDeleteUser(uid) {
         <small>${esc([r.display_name, r.provider && r.provider !== '-' ? r.provider : null, String(r.user_id)].filter(Boolean).join(' · '))}</small>
       </div>
       <div class="warn">${owned
-        ? `이 사람이 만든 아기 ${fmt(owned)}명과 그 아기의 기록 전부가 계정과 함께 사라진다.`
+        ? `이 사람이 만든 아기 ${babyList(r).filter((b) => b.owned).map((b) => `${b.name}(${babyAge(b.birth)})`).join(', ')} 와 그 기록 전부가 계정과 함께 사라진다.`
         : '이 사람이 만든 아기는 없다 — 계정만 사라지고, 남긴 기록은 아기 쪽에 남는다(작성자 표시만 지워진다).'}${
         shared ? `\n공동양육으로 참여 중인 아기 ${fmt(shared)}명은 남고 이 사람의 접근만 끊긴다.` : ''}
 되돌릴 수 없고, 사용자에게 따로 알려 주지도 않는다.</div>
