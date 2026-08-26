@@ -47,6 +47,34 @@
   a { color: inherit; text-decoration: none; }
   .container { width: 100%; max-width: 980px; margin: 0 auto; padding: 0 20px 90px; }
 
+  /* ── 레이아웃 · 좌측 사이드바 ───────────────── */
+  .shell { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 20px 90px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; align-items: start; }
+  .shell.with-side { grid-template-columns: 216px minmax(0, 1fr); }
+  .side { position: sticky; top: 68px; margin-top: 26px; }
+  .side-nav { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 8px; box-shadow: 0 2px 10px rgba(17,24,39,0.03); }
+  .side-nav [data-app="baby"]   { --c: var(--c-baby);   --c-soft: var(--c-baby-soft); }
+  .side-nav [data-app="haru"]   { --c: var(--c-haru);   --c-soft: var(--c-haru-soft); }
+  .side-nav [data-app="lotto"]  { --c: var(--c-lotto);  --c-soft: var(--c-lotto-soft); }
+  .side-nav [data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
+  .side-nav [data-app="dm"]     { --c: var(--c-dm);     --c-soft: var(--c-dm-soft); }
+  .side-cap { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-muted); padding: 7px 10px 5px; }
+  .side-nav a.nav-app { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-2); padding: 8px 10px; border-radius: 10px; }
+  .side-nav a.nav-app:hover { background: var(--accent-soft); }
+  .side-nav a.nav-app.active { background: var(--c-soft); color: var(--c); }
+  .side-nav .dot { margin-left: auto; background: var(--new); color: #fff; font-size: 0.62rem; border-radius: 99px; padding: 0 6px; font-weight: 800; }
+  .side-subs { display: flex; flex-direction: column; gap: 1px; margin: 2px 0 6px 20px; padding-left: 8px; border-left: 1px solid var(--border); }
+  .side-subs a { display: flex; align-items: center; gap: 6px; font-size: 0.77rem; font-weight: 600; color: var(--text-muted); padding: 5px 9px; border-radius: 8px; }
+  .side-subs a:hover { color: var(--text-2); background: var(--accent-soft); }
+  .side-subs a.on { color: var(--c); background: var(--c-soft); font-weight: 800; }
+  @media (max-width: 900px) {
+    .shell, .shell.with-side { grid-template-columns: minmax(0, 1fr); gap: 0; }
+    .side { position: static; margin-top: 14px; }
+    .side-nav { display: flex; gap: 4px; padding: 6px; overflow-x: auto; scrollbar-width: none; }
+    .side-nav::-webkit-scrollbar { display: none; }
+    .side-cap, .side-subs { display: none; }
+    .side-nav a.nav-app { white-space: nowrap; }
+  }
+
   /* ── 헤더 ───────────────────────────── */
   header.top {
     position: sticky; top: 0; z-index: 50;
@@ -57,12 +85,6 @@
   .logo { display: flex; align-items: center; gap: 8px; font-weight: 800; letter-spacing: 0.03em; font-size: 0.88rem; white-space: nowrap; }
   .logo .mark { width: 22px; height: 22px; border-radius: 7px; background: var(--accent); color: #fff; display: grid; place-items: center; font-size: 0.6rem; font-weight: 800; letter-spacing: 0; }
   .logo span.dim { color: var(--text-muted); font-weight: 500; }
-  .top-nav { display: flex; gap: 2px; margin-left: 6px; overflow-x: auto; scrollbar-width: none; }
-  .top-nav::-webkit-scrollbar { display: none; }
-  .top-nav a { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); padding: 5px 11px; border-radius: 99px; white-space: nowrap; border: 1px solid transparent; }
-  .top-nav a:hover { color: var(--text); background: var(--accent-soft); }
-  .top-nav a.active { color: var(--text); background: var(--bg); border-color: var(--border); box-shadow: 0 1px 4px rgba(0,0,0,0.05); }
-  .top-nav a .dot { margin-left: 5px; background: var(--new); color: #fff; font-size: 0.62rem; border-radius: 99px; padding: 0 6px; font-weight: 800; }
   .top-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
   .seg { display: inline-flex; background: var(--accent-soft); border-radius: 99px; padding: 3px; }
   .seg button { border: none; background: transparent; font-size: 0.74rem; font-weight: 700; color: var(--text-muted); padding: 4px 12px; border-radius: 99px; cursor: pointer; }
@@ -97,7 +119,9 @@
   .app-sect[data-app="dm"]    { --c: var(--c-dm);    --c-soft: var(--c-dm-soft); }
 
   /* ── 앱 안에서 화면을 더 나누는 탭 — 지금은 로또정석만 쓴다 ── */
-  .subnav { display: flex; gap: 2px; margin: 2px 0 14px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  /* 넓은 화면에선 좌측 사이드바가 하위 탭을 대신하고, 좁은 화면에서만 이 탭 줄이 나온다 */
+  .subnav { display: none; gap: 2px; margin: 2px 0 14px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; }
+  @media (max-width: 900px) { .subnav { display: flex; } }
   .subnav::-webkit-scrollbar { display: none; }
   .subnav button { border: none; background: transparent; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); padding: 7px 12px; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; font-family: inherit; }
   .subnav button:hover { color: var(--text-2); }
@@ -230,14 +254,38 @@
   .ev-row .num b { color: var(--text); font-size: 0.79rem; }
 
   /* 문의 리스트 */
-  /* 광고 관리 */
-  .ads-row { display: flex; align-items: center; gap: 10px; background: var(--bg-alt); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 9px 14px; margin-bottom: 6px; font-size: 0.83rem; flex-wrap: wrap; }
-  .ads-row .who { font-weight: 600; color: var(--text-2); overflow: hidden; text-overflow: ellipsis; }
-  .ads-row .who small { color: var(--text-muted); font-weight: 500; }
-  .ads-row .spacer { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-  .ads-btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 4px 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer; color: var(--text); }
+  /* 회원 관리 (가입일 필터 + 계정별 광고 on/off) */
+  .usr-bar { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 12px; }
+  .usr-bar .lbl { font-size: 0.71rem; font-weight: 800; color: var(--text-muted); letter-spacing: 0.02em; }
+  .usr-bar select, .usr-bar input[type="date"] { border: 1px solid var(--border); border-radius: 9px; padding: 5px 10px; font-size: 0.77rem; font-family: inherit; background: var(--bg); color: var(--text); }
+  .usr-bar select:focus, .usr-bar input:focus { outline: none; border-color: var(--c); }
+  .usr-tbl th, .usr-tbl td { padding: 8px; vertical-align: middle; }
+  .usr-tbl tbody tr:hover { background: var(--bg-alt); }
+  .u-who { display: flex; flex-direction: column; gap: 1px; min-width: 0; max-width: 260px; }
+  .u-who b { font-weight: 700; font-size: 0.79rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .u-who small { color: var(--text-muted); font-size: 0.67rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .u-ago { color: var(--text-muted); font-size: 0.68rem; }
+  .u-ads { white-space: nowrap; }
+  .charts2.one { grid-template-columns: minmax(0, 470px); }
+  .del-btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 4px 10px; font-size: 0.73rem; font-weight: 700; color: var(--bad); cursor: pointer; font-family: inherit; }
+  .del-btn:hover { border-color: var(--bad); background: var(--bad-bg); }
+
+  /* 되돌릴 수 없는 작업은 네이티브 confirm 대신 무엇이 지워지는지 보여주고 묻는다 */
+  .modal-bg { position: fixed; inset: 0; background: rgba(17,24,39,0.45); display: grid; place-items: center; padding: 20px; z-index: 80; }
+  .modal { --c: var(--accent); background: var(--bg); border-radius: var(--radius-lg); padding: 22px 24px; width: min(430px, 100%); box-shadow: var(--shadow-soft); }
+  .modal h3 { margin: 0 0 10px; font-size: 1rem; letter-spacing: -0.01em; }
+  .modal-who { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+  .modal-who b { font-size: 0.86rem; }
+  .modal-who small { color: var(--text-muted); font-size: 0.68rem; word-break: break-all; }
+  .modal .warn { background: var(--bad-bg); border: 1px solid #fecaca; color: var(--bad); border-radius: var(--radius-md); padding: 10px 12px; font-size: 0.78rem; margin: 10px 0; white-space: pre-line; line-height: 1.55; }
+  .modal-label { display: block; font-size: 0.76rem; font-weight: 700; color: var(--text-2); margin-bottom: 5px; }
+  .modal-msg { font-size: 0.76rem; color: var(--bad); margin-top: 8px; white-space: pre-line; }
+  .modal-acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .modal-acts .btn.danger:not(:disabled) { background: var(--bad); color: #fff; }   /* 가입 추이는 한 장 — 전체 폭으로 늘리면 표를 눌러 버린다 */
+  .ads-btn { border: 1px solid var(--border); background: var(--bg); border-radius: 9px; padding: 4px 11px; font-size: 0.73rem; font-weight: 700; cursor: pointer; color: var(--text); margin-left: 6px; font-family: inherit; }
+  .ads-btn:hover { border-color: var(--text-muted); }
   .ads-btn:disabled { opacity: 0.5; }
-  .search-input { margin-left: auto; border: 1px solid var(--border); border-radius: 9px; padding: 5px 11px; font-size: 0.78rem; background: var(--bg); width: min(220px, 50vw); font-weight: 500; }
+  .search-input { border: 1px solid var(--border); border-radius: 9px; padding: 5px 11px; font-size: 0.78rem; background: var(--bg); width: min(220px, 50vw); font-weight: 500; font-family: inherit; color: var(--text); }
   .search-input:focus { outline: none; border-color: var(--c, var(--accent)); }
   .badge.ads-off { background: var(--ok-bg); color: var(--ok); }
   .badge.ads-on { background: var(--accent-soft); color: var(--text-muted); }
@@ -294,13 +342,6 @@
 <header class="top">
   <div class="top-inner">
     <div class="logo"><span class="mark">DM</span>STUDIO <span class="dim">admin</span></div>
-    <nav class="top-nav" id="top-nav" hidden>
-      <a href="#" data-app="baby">👶 아기의 하루<span class="dot" hidden></span></a>
-      <a href="#" data-app="haru">📅 오늘하루<span class="dot" hidden></span></a>
-      <a href="#" data-app="lotto">🎰 로또정석</a>
-      <a href="#" data-app="hanjul">💬 한줄</a>
-      <a href="#" data-app="dm">🖥 DeskMoment<span class="dot" hidden></span></a>
-    </nav>
     <div class="top-right">
       <span class="chip" id="conn-chip" hidden></span>
       <button id="logout" hidden>로그아웃</button>
@@ -308,12 +349,41 @@
   </div>
 </header>
 
-<div class="container">
+<div class="shell" id="shell">
+
+  <aside class="side" id="side" hidden>
+    <nav class="side-nav" id="top-nav">
+      <div class="side-cap">앱</div>
+
+      <a href="#" class="nav-app" data-app="baby">👶 아가하루<span class="dot" hidden></span></a>
+      <div class="side-subs" data-app="baby" hidden>
+        <a href="#" data-app="baby" data-sub="an" class="on">애널리틱스</a>
+        <a href="#" data-app="baby" data-sub="users">회원 관리</a>
+        <a href="#" data-app="baby" data-sub="inq">문의<span class="dot" hidden></span></a>
+      </div>
+
+      <a href="#" class="nav-app" data-app="haru">📅 오늘하루<span class="dot" hidden></span></a>
+
+      <a href="#" class="nav-app" data-app="lotto">🎰 로또정석</a>
+      <div class="side-subs" data-app="lotto" hidden>
+        <a href="#" data-app="lotto" data-sub="an" class="on">애널리틱스</a>
+        <a href="#" data-app="lotto" data-sub="config">앱 설정</a>
+        <a href="#" data-app="lotto" data-sub="numbers">번호 저장소</a>
+        <a href="#" data-app="lotto" data-sub="gen">조합 생성</a>
+        <a href="#" data-app="lotto" data-sub="notice">공지 관리</a>
+      </div>
+
+      <a href="#" class="nav-app" data-app="hanjul">💬 한줄</a>
+      <a href="#" class="nav-app" data-app="dm">🖥 DeskMoment<span class="dot" hidden></span></a>
+    </nav>
+  </aside>
+
+  <main class="main">
 
   <div id="login-view">
     <div class="mark">DM</div>
     <h1>어드민 콘솔</h1>
-    <p>아기의 하루 · 오늘하루 · 로또정석 · 한줄 · DeskMoment의 문의와 지표를 한 곳에서.</p>
+    <p>아가하루 · 오늘하루 · 로또정석 · 한줄 · DeskMoment의 문의와 지표를 한 곳에서.</p>
     <label>이메일</label>
     <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
     <label>비밀번호</label>
@@ -327,7 +397,7 @@
     <section class="app-sect" id="sect-baby" data-app="baby">
       <div class="sect-head">
         <div class="app-ico">👶</div>
-        <h2>아기의 하루<span class="sub">육아 기록 · 내부테스트 · 서버 지표 + 문의</span></h2>
+        <h2>아가하루<span class="sub">육아 기록 · 출시됨 · 회원 관리 + 서버 지표 + 문의</span></h2>
         <div class="head-right">
           <div class="live-dot" hidden data-live="baby"><i></i>실시간</div>
           <div class="seg sect-days" data-app="baby">
@@ -335,14 +405,47 @@
           </div>
         </div>
       </div>
+      <nav class="subnav" id="baby-subnav">
+        <button data-sub="an" class="on">애널리틱스</button>
+        <button data-sub="users">회원 관리</button>
+        <button data-sub="inq">문의</button>
+      </nav>
+
       <div id="baby-err"></div>
-      <div id="baby-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
-      <div class="inq-title">광고 관리 <span class="cnt" id="ads-cnt" hidden></span>
-        <input id="ads-search" class="search-input" type="search" placeholder="이메일·닉네임 검색" autocomplete="off">
+
+      <div class="subpane" data-sub="an">
+        <div id="baby-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
       </div>
-      <div id="baby-ads"><div class="sk sk-card"></div></div>
-      <div class="inq-title">문의 <span class="cnt" id="baby-cnt" hidden></span></div>
-      <div id="list-baby"><div class="sk sk-card"></div></div>
+
+      <div class="subpane" data-sub="users" hidden>
+        <div class="usr-bar">
+          <span class="lbl">가입일</span>
+          <div class="seg" id="usr-preset">
+            <button data-p="all" class="on">전체</button><button data-p="7">7일</button><button data-p="30">30일</button><button data-p="90">90일</button>
+          </div>
+          <input type="date" id="usr-from" aria-label="가입일 시작">
+          <span class="lbl">~</span>
+          <input type="date" id="usr-to" aria-label="가입일 끝">
+          <select id="usr-ads">
+            <option value="all">광고 전체</option><option value="on">광고 켜짐</option><option value="off">광고 꺼짐</option>
+          </select>
+          <select id="usr-kind">
+            <option value="all">유형 전체</option><option value="email">이메일 계정</option><option value="guest">게스트</option>
+          </select>
+          <select id="usr-sort">
+            <option value="new">최신 가입순</option><option value="old">오래된 가입순</option><option value="rec">기록 많은순</option><option value="seen">최근 로그인순</option>
+          </select>
+          <input type="search" id="usr-q" class="search-input" placeholder="이메일·닉네임·UID 검색" autocomplete="off">
+          <button class="btn" id="usr-reload">새로고침</button>
+        </div>
+        <div id="usr-stats"></div>
+        <div id="baby-users"><div class="sk sk-card"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="inq" hidden>
+        <div class="inq-title">문의 <span class="cnt" id="baby-cnt" hidden></span></div>
+        <div id="list-baby"><div class="sk sk-card"></div></div>
+      </div>
     </section>
 
     <section class="app-sect" id="sect-haru" data-app="haru">
@@ -456,6 +559,8 @@
 
   </div>
 
+  </main>
+
 </div>
 
 <div id="tip"></div>
@@ -465,7 +570,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const PROJECTS = {
   baby: {
-    label: '아기의 하루',
+    label: '아가하루',
     url: 'https://xnlypjfwqisastckqbwh.supabase.co',
     anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhubHlwamZ3cWlzYXN0Y2txYndoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMDc4NDYsImV4cCI6MjA5MjU4Mzg0Nn0.pAT8UoKS0GfQeFs4IPgcaAN61rVyLAmaD2ela9HGoE8',
   },
@@ -541,7 +646,8 @@ async function restoreSessions() {
 function enterApp() {
   $('#login-view').hidden = true;
   $('#app-view').hidden = false;
-  $('#top-nav').hidden = false;
+  $('#side').hidden = false;
+  $('#shell').classList.add('with-side');
   $('#logout').hidden = false;
   const chip = $('#conn-chip');
   const bad = Object.entries(PROJECTS).filter(([k]) => !connected[k]).map(([, p]) => p.label);
@@ -553,32 +659,80 @@ function enterApp() {
   subscribeRealtime();
 }
 
-// ── 탭 전환 (앱 하나씩만 표시) ─────────────────
+// ── 탭 전환 (좌측 사이드바 — 앱 하나씩만 표시) ─────────────────
+// 하위 탭이 있는 앱은 사이드바에서 펼쳐지고, 좁은 화면에선 섹션 안 탭 줄(.subnav)이 대신한다.
+const SUB_DEFAULT = { baby: 'an', lotto: 'an' };
+const subState = { ...SUB_DEFAULT };
+const INQ_SUB = { baby: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
+
 function showTab(app) {
   document.querySelectorAll('.app-sect').forEach((s) => s.classList.toggle('active', s.dataset.app === app));
-  document.querySelectorAll('.top-nav a').forEach((a) => {
-    a.classList.toggle('active', a.dataset.app === app);
-    if (a.dataset.app === app) {
-      const d = a.querySelector('.dot');
-      if (d) { d.hidden = true; d.textContent = ''; }
-    }
-  });
+  document.querySelectorAll('.side-nav a.nav-app').forEach((a) => a.classList.toggle('active', a.dataset.app === app));
+  document.querySelectorAll('.side-subs').forEach((d) => { d.hidden = d.dataset.app !== app; });
   try { localStorage.setItem('dm-admin-tab', app); } catch {}
+  if (app in subState) {
+    let sub = subState[app];
+    try { sub = localStorage.getItem('dm-admin-sub-' + app) || sub; } catch {}
+    if (!document.querySelector(`#sect-${app} .subpane[data-sub="${sub}"]`)) sub = SUB_DEFAULT[app];
+    setSub(app, sub);
+  } else syncDot(app);
 }
+
+// 하위 탭을 열 때 그 화면에 필요한 것만 그때 불러온다
+const SUB_HOOK = {
+  baby(sub) {
+    document.querySelector('.sect-days[data-app="baby"]').style.visibility = sub === 'an' ? '' : 'hidden';
+    if (sub === 'users') loadBabyUsers();
+  },
+  lotto(sub) {
+    ltState.sub = sub;
+    document.querySelector('.sect-days[data-app="lotto"]').style.visibility = sub === 'an' ? '' : 'hidden';
+    ({ config: loadLtConfig, numbers: loadLtNumbers, gen: renderLtGen, notice: loadLtNotices }[sub] ?? (() => {}))();
+  },
+};
+
+function setSub(app, sub) {
+  if (!(app in subState)) return;
+  subState[app] = sub;
+  try { localStorage.setItem('dm-admin-sub-' + app, sub); } catch {}
+  document.querySelectorAll(`#sect-${app} .subpane`).forEach((p) => { p.hidden = p.dataset.sub !== sub; });
+  document.querySelectorAll(`#sect-${app} .subnav button`).forEach((x) => x.classList.toggle('on', x.dataset.sub === sub));
+  document.querySelectorAll(`.side-subs[data-app="${app}"] a`).forEach((x) => x.classList.toggle('on', x.dataset.sub === sub));
+  syncDot(app);
+  SUB_HOOK[app]?.(sub);
+}
+
 $('#top-nav').addEventListener('click', (e) => {
   const a = e.target.closest('a');
   if (!a) return;
   e.preventDefault();
-  showTab(a.dataset.app);
+  const { app, sub } = a.dataset;
+  // 하위 탭 링크는 showTab 이 복원할 값을 먼저 바꿔 두 번 로드하지 않게 한다
+  if (sub) { subState[app] = sub; try { localStorage.setItem('dm-admin-sub-' + app, sub); } catch {} }
+  showTab(app);
 });
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.subnav button');
+  if (!b) return;
+  setSub(b.closest('.app-sect').dataset.app, b.dataset.sub);
+});
+
 // 안 보고 있는 탭에 새 문의가 오면 탭에 카운트 뱃지
-function bumpDot(app) {
+const clearDot = (d) => { if (d) { d.hidden = true; d.textContent = ''; } };
+function dotsOf(app) {
+  const list = [document.querySelector(`.side-nav a.nav-app[data-app="${app}"] .dot`)];
+  if (INQ_SUB[app]) list.push(document.querySelector(`.side-subs a[data-app="${app}"][data-sub="${INQ_SUB[app]}"] .dot`));
+  return list.filter(Boolean);
+}
+function viewingInq(app) {
   const sect = document.querySelector(`.app-sect[data-app="${app}"]`);
-  if (sect?.classList.contains('active')) return;
-  const d = document.querySelector(`.top-nav a[data-app="${app}"] .dot`);
-  if (!d) return;
-  d.textContent = String(Number(d.textContent || 0) + 1);
-  d.hidden = false;
+  if (!sect?.classList.contains('active')) return false;
+  return !INQ_SUB[app] || subState[app] === INQ_SUB[app];
+}
+function syncDot(app) { if (viewingInq(app)) dotsOf(app).forEach(clearDot); }
+function bumpDot(app) {
+  if (viewingInq(app)) return;
+  dotsOf(app).forEach((d) => { d.textContent = String(Number(d.textContent || 0) + 1); d.hidden = false; });
 }
 
 $('#login-btn').addEventListener('click', async () => {
@@ -654,19 +808,14 @@ async function loadBaby() {
   const days = state.days.baby;
   if (!connected.baby) {
     $('#baby-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
-    $('#baby-an').innerHTML = ''; $('#list-baby').innerHTML = '';
+    $('#baby-an').innerHTML = ''; $('#list-baby').innerHTML = ''; $('#baby-users').innerHTML = '';
     return;
   }
-  const [an, inq, ads] = await Promise.all([
+  const [an, inq] = await Promise.all([
     sb.baby.rpc('admin_daily_stats', { p_days: days * 2 }),
     sb.baby.from('inquiries').select('*').order('created_at', { ascending: false }).limit(100),
-    sb.baby.rpc('admin_list_ad_settings'),
   ]);
-  if (ads.error) {
-    $('#baby-ads').innerHTML = `<div class="sect-err">광고 설정 조회 실패: ${esc(ads.error.message)}\n→ admin/setup/babydaily-ads.sql 적용 필요</div>`;
-  } else {
-    renderAds(ads.data);
-  }
+  if (subState.baby === 'users') loadBabyUsers(true);
   if (an.error) {
     $('#baby-an').innerHTML = `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`;
   } else {
@@ -791,17 +940,6 @@ function toast(msg) {
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2400);
 }
-
-// 하위 탭 전환 — 기간 세그먼트는 애널리틱스에서만 의미가 있어 같이 감춘다
-$('#lotto-subnav').addEventListener('click', (e) => {
-  const b = e.target.closest('button');
-  if (!b) return;
-  ltState.sub = b.dataset.sub;
-  $('#lotto-subnav').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  document.querySelectorAll('#sect-lotto .subpane').forEach((p) => { p.hidden = p.dataset.sub !== ltState.sub; });
-  document.querySelector('.sect-days[data-app="lotto"]').style.visibility = ltState.sub === 'an' ? '' : 'hidden';
-  ({ config: loadLtConfig, numbers: loadLtNumbers, gen: renderLtGen, notice: loadLtNotices }[ltState.sub] ?? (() => {}))();
-});
 
 // 래퍼는 성공/실패를 { error: ... } 로도, 예외로도 돌려줄 수 있다 — 한 곳에서 정리한다.
 async function ltRpc(fn, params) {
@@ -1265,48 +1403,219 @@ function anBlock(rows, top, days) {
   </div>` + topEvHtml(top);
 }
 
-// ── 광고 관리 (계정별 ads_enabled 토글) ──────────
-function renderAds(rows) {
-  const off = rows.filter((r) => !r.ads_enabled).length;
-  const cnt = $('#ads-cnt');
-  cnt.hidden = false;
-  cnt.textContent = `${rows.length}계정${off ? ` · 광고 꺼짐 ${off}` : ''}`;
-  $('#baby-ads').innerHTML = rows.map((r) => {
-    const who = r.email
-      ? `${esc(r.email)}${r.display_name ? ` <small>(${esc(r.display_name)})</small>` : ''}`
-      : `<small>(이메일 없음 · ${esc(String(r.user_id).slice(0, 8))})</small>`;
-    const searchKey = `${r.email ?? ''} ${r.display_name ?? ''} ${r.user_id}`.toLowerCase();
-    return `<div class="ads-row" data-uid="${esc(r.user_id)}" data-search="${esc(searchKey)}">
-      <div class="who">${who}</div>
-      <div class="spacer">
-        <span class="badge ${r.ads_enabled ? 'ads-on' : 'ads-off'}">${r.ads_enabled ? '광고 켜짐' : '광고 꺼짐'}</span>
-        <button class="ads-btn" data-uid="${esc(r.user_id)}" data-next="${!r.ads_enabled}">${r.ads_enabled ? '광고 끄기' : '다시 켜기'}</button>
+// ── 회원 관리 (아가하루) ──────────────────────
+// 가입일·최근 로그인·아기/기록 수 + 계정별 광고 on/off.
+// 목록은 admin_list_users() 한 번으로 받아 두고 필터·정렬·검색은 브라우저에서 한다.
+// → admin/setup/babydaily-users.sql (광고 토글 RPC 는 babydaily-ads.sql 그대로)
+const usr = { rows: null, loading: false, preset: 'all', from: '', to: '', ads: 'all', kind: 'all', sort: 'new', q: '' };
+
+// KST 기준 YYYY-MM-DD ('sv-SE' 로케일이 ISO 형식으로 준다)
+const kday = (ts) => { try { return new Date(ts).toLocaleDateString('sv-SE', { timeZone: 'Asia/Seoul' }); } catch { return ''; } };
+function shiftDay(iso, n) { const d = new Date(iso + 'T00:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+function daysAgo(ts) {
+  const n = Math.floor((Date.now() - new Date(ts).getTime()) / 86400000);
+  return n <= 0 ? '오늘' : n === 1 ? '어제' : `${fmt(n)}일 전`;
+}
+// 날짜를 직접 넣었으면 그게 우선, 아니면 프리셋(최근 N일)
+function usrRange() {
+  if (usr.from || usr.to) return [usr.from, usr.to];
+  const n = Number(usr.preset);
+  if (!Number.isFinite(n)) return ['', ''];   // 'all' · 'custom' 은 기간 제한 없음
+  const today = kday(Date.now());
+  return [shiftDay(today, -(n - 1)), today];
+}
+function usrRangeLabel() {
+  const [f, t] = usrRange();
+  if (!f && !t) return '전체 기간';
+  if (f && t) return `${f} ~ ${t}`;
+  return f ? `${f} 이후` : `${t} 이전`;
+}
+
+async function loadBabyUsers(force) {
+  if (!connected.baby) { $('#baby-users').innerHTML = '<div class="sect-err">프로젝트 미연결</div>'; return; }
+  if (usr.rows && !force) { renderUsers(); return; }
+  if (usr.loading) return;
+  usr.loading = true;
+  if (!usr.rows) $('#baby-users').innerHTML = '<div class="sk sk-card"></div>';
+  const { data, error } = await sb.baby.rpc('admin_list_users');
+  usr.loading = false;
+  if (error) {
+    $('#usr-stats').innerHTML = '';
+    $('#baby-users').innerHTML = `<div class="sect-err">회원 목록 조회 실패: ${esc(error.message)}\n→ admin/setup/babydaily-users.sql 적용 필요</div>`;
+    return;
+  }
+  usr.rows = data ?? [];
+  renderUsers();
+}
+
+function usrFiltered() {
+  const [from, to] = usrRange();
+  const q = usr.q.trim().toLowerCase();
+  const out = (usr.rows ?? []).filter((r) => {
+    const d = r.joined_at ? kday(r.joined_at) : '';
+    if (from && (!d || d < from)) return false;
+    if (to && (!d || d > to)) return false;
+    if (usr.ads === 'on' && !r.ads_enabled) return false;
+    if (usr.ads === 'off' && r.ads_enabled) return false;
+    if (usr.kind === 'guest' && !r.is_guest) return false;
+    if (usr.kind === 'email' && r.is_guest) return false;
+    if (q && !`${r.email ?? ''} ${r.display_name ?? ''} ${r.provider ?? ''} ${r.user_id}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const cmp = {
+    new: (a, b) => String(b.joined_at ?? '').localeCompare(String(a.joined_at ?? '')),
+    old: (a, b) => String(a.joined_at ?? '').localeCompare(String(b.joined_at ?? '')),
+    rec: (a, b) => Number(b.record_count) - Number(a.record_count),
+    seen: (a, b) => String(b.last_sign_in_at ?? '').localeCompare(String(a.last_sign_in_at ?? '')),
+  }[usr.sort];
+  return out.sort(cmp);
+}
+
+function renderUsers() {
+  if (!usr.rows) return;
+  const list = usrFiltered();
+  renderUsrStats(list);
+  const body = list.map(usrRowHtml).join('');
+  $('#baby-users').innerHTML = usrChart(list) + (body
+    ? `<div class="tbl-wrap"><table class="tbl usr-tbl">
+         <thead><tr><th>회원</th><th>가입일</th><th>최근 로그인</th><th class="num">아기</th><th class="num">기록</th><th>광고</th><th>관리</th></tr></thead>
+         <tbody>${body}</tbody></table></div>`
+    : `<div class="empty">조건에 맞는 회원 없음 · 전체 ${fmt(usr.rows.length)}명</div>`);
+}
+
+function renderUsrStats(list) {
+  const rows = usr.rows ?? [];
+  const week = shiftDay(kday(Date.now()), -6);
+  $('#usr-stats').innerHTML = statHtml([
+    { k: '전체 회원', v: fmt(rows.length) },
+    { k: `조건 일치 · ${usrRangeLabel()}`, v: fmt(list.length) },
+    { k: '최근 7일 가입', v: fmt(rows.filter((r) => r.joined_at && kday(r.joined_at) >= week).length) },
+    { k: '광고 꺼짐 (조건 내)', v: fmt(list.filter((r) => !r.ads_enabled).length) },
+  ]);
+}
+
+function usrRowHtml(r) {
+  const name = r.is_guest ? '(게스트 · 이메일 없음)' : (r.email ?? '(이메일 없음)');
+  const sub = [r.display_name, r.provider && r.provider !== '-' ? r.provider : null, String(r.user_id).slice(0, 8)].filter(Boolean).join(' · ');
+  return `<tr data-uid="${esc(r.user_id)}">
+    <td><div class="u-who"><b>${esc(name)}</b><small>${esc(sub)}</small></div></td>
+    <td>${r.joined_at ? `${esc(kday(r.joined_at))} <span class="u-ago">${esc(daysAgo(r.joined_at))}</span>` : '-'}</td>
+    <td>${r.last_sign_in_at ? `${esc(kday(r.last_sign_in_at))} <span class="u-ago">${esc(daysAgo(r.last_sign_in_at))}</span>` : '<span class="u-ago">기록 없음</span>'}</td>
+    <td class="num">${fmt(r.baby_count)}${Number(r.owned_baby_count) !== Number(r.baby_count) ? ` <span class="u-ago">소유 ${fmt(r.owned_baby_count)}</span>` : ''}</td>
+    <td class="num">${fmt(r.record_count)}${r.last_record_at ? ` <span class="u-ago">${esc(kday(r.last_record_at))}</span>` : ''}</td>
+    <td class="u-ads">${adsCellHtml(r)}</td>
+    <td><button class="del-btn" data-uid="${esc(r.user_id)}">삭제</button></td>
+  </tr>`;
+}
+
+function adsCellHtml(r) {
+  return `<span class="badge ${r.ads_enabled ? 'ads-on' : 'ads-off'}">${r.ads_enabled ? '켜짐' : '꺼짐'}</span>` +
+    `<button class="ads-btn" data-uid="${esc(r.user_id)}" data-next="${!r.ads_enabled}">${r.ads_enabled ? '끄기' : '켜기'}</button>`;
+}
+
+// 계정 삭제 — 무엇이 함께 지워지는지 먼저 보이고, '삭제' 를 입력해야 눌린다
+function askDeleteUser(uid) {
+  const r = (usr.rows ?? []).find((x) => String(x.user_id) === uid);
+  if (!r) return;
+  const who = r.is_guest ? '(게스트 · 이메일 없음)' : (r.email ?? '(이메일 없음)');
+  const owned = Number(r.owned_baby_count ?? 0);
+  const shared = Math.max(0, Number(r.baby_count ?? 0) - owned);
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="회원 삭제">
+      <h3>회원 삭제</h3>
+      <div class="modal-who">
+        <b>${esc(who)}</b>
+        <small>${esc([r.display_name, r.provider && r.provider !== '-' ? r.provider : null, String(r.user_id)].filter(Boolean).join(' · '))}</small>
+      </div>
+      <div class="warn">${owned
+        ? `이 사람이 만든 아기 ${fmt(owned)}명과 그 아기의 기록 전부가 계정과 함께 사라진다.`
+        : '이 사람이 만든 아기는 없다 — 계정만 사라지고, 남긴 기록은 아기 쪽에 남는다(작성자 표시만 지워진다).'}${
+        shared ? `\n공동양육으로 참여 중인 아기 ${fmt(shared)}명은 남고 이 사람의 접근만 끊긴다.` : ''}
+되돌릴 수 없고, 사용자에게 따로 알려 주지도 않는다.</div>
+      <label class="modal-label" for="del-confirm">확인을 위해 <b>삭제</b> 를 입력</label>
+      <input class="cfg-input wide" id="del-confirm" autocomplete="off" placeholder="삭제">
+      <div class="modal-msg"></div>
+      <div class="modal-acts">
+        <button class="btn" data-act="cancel">취소</button>
+        <button class="btn danger" data-act="go" disabled>삭제</button>
       </div>
     </div>`;
-  }).join('') || '<div class="empty">계정 없음</div>';
-  applyAdsFilter();
-}
-
-function applyAdsFilter() {
-  const q = ($('#ads-search')?.value ?? '').trim().toLowerCase();
-  let shown = 0;
-  document.querySelectorAll('#baby-ads .ads-row').forEach((row) => {
-    const hit = !q || row.dataset.search.includes(q);
-    row.style.display = hit ? '' : 'none';
-    if (hit) shown++;
+  document.body.appendChild(bg);
+  const input = bg.querySelector('#del-confirm');
+  const go = bg.querySelector('[data-act="go"]');
+  const onKey = (e) => { if (e.key === 'Escape') close(); };
+  function close() { bg.remove(); document.removeEventListener('keydown', onKey); }
+  document.addEventListener('keydown', onKey);
+  bg.addEventListener('click', (e) => { if (e.target === bg || e.target.dataset.act === 'cancel') close(); });
+  input.addEventListener('input', () => { go.disabled = input.value.trim() !== '삭제'; });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !go.disabled) go.click(); });
+  go.addEventListener('click', async () => {
+    go.disabled = true;
+    go.textContent = '삭제 중…';
+    const { data, error } = await sb.baby.rpc('admin_delete_user', { p_user_id: r.user_id });
+    if (error) {
+      bg.querySelector('.modal-msg').textContent = '삭제 실패: ' + error.message +
+        '\n→ admin/setup/babydaily-users.sql 적용 확인';
+      go.disabled = false;
+      go.textContent = '삭제';
+      return;
+    }
+    usr.rows = (usr.rows ?? []).filter((x) => String(x.user_id) !== uid);
+    renderUsers();
+    close();
+    toast(data === false ? '이미 없는 계정' : '회원 삭제됨');
   });
-  const none = $('#baby-ads .no-match');
-  if (q && shown === 0) {
-    if (!none) $('#baby-ads').insertAdjacentHTML('beforeend', '<div class="empty no-match">검색 결과 없음</div>');
-  } else {
-    none?.remove();
-  }
+  input.focus();
 }
-$('#ads-search').addEventListener('input', applyAdsFilter);
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.del-btn');
+  if (b) askDeleteUser(b.dataset.uid);
+});
 
+// 선택한 기간의 가입 추이 (기간이 '전체'면 최근 30일)
+function usrChart(list) {
+  let [from, to] = usrRange();
+  to = to || kday(Date.now());
+  if (!from) from = shiftDay(to, -29);
+  const days = [];
+  for (let d = from; d <= to && days.length < 185; d = shiftDay(d, 1)) days.push(d);
+  if (days.length < 2) return '';
+  const cnt = {};
+  for (const r of list) { const d = r.joined_at ? kday(r.joined_at) : ''; if (d) cnt[d] = (cnt[d] ?? 0) + 1; }
+  const rows = days.map((d) => ({ day: d, n: cnt[d] ?? 0 }));
+  return `<div class="charts2 one">${chartCard('가입일별 신규 회원', rows, 'n', '가입')}</div>`;
+}
+
+// 필터 · 정렬 · 검색 (모두 이미 받아 둔 목록 위에서 다시 그린다)
+$('#usr-preset').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  usr.preset = b.dataset.p; usr.from = ''; usr.to = '';
+  $('#usr-from').value = ''; $('#usr-to').value = '';
+  $('#usr-preset').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  renderUsers();
+});
+for (const [sel, key] of [['#usr-from', 'from'], ['#usr-to', 'to']]) {
+  $(sel).addEventListener('change', () => {
+    usr[key] = $(sel).value;
+    // 직접 넣은 날짜가 있으면 프리셋 선택을 풀고, 둘 다 비우면 '전체'로 되돌린다
+    usr.preset = usr.from || usr.to ? 'custom' : 'all';
+    $('#usr-preset').querySelectorAll('button').forEach((x) => x.classList.toggle('on', usr.preset === x.dataset.p));
+    renderUsers();
+  });
+}
+for (const [sel, key] of [['#usr-ads', 'ads'], ['#usr-kind', 'kind'], ['#usr-sort', 'sort']]) {
+  $(sel).addEventListener('change', () => { usr[key] = $(sel).value; renderUsers(); });
+}
+$('#usr-q').addEventListener('input', () => { usr.q = $('#usr-q').value; renderUsers(); });
+$('#usr-reload').addEventListener('click', () => loadBabyUsers(true));
+
+// 계정별 광고 on/off — app_settings.ads_enabled (행이 없으면 RPC 가 만들어 준다)
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('.ads-btn');
   if (!b) return;
+  const label = b.textContent;
   b.disabled = true;
   b.textContent = '저장 중…';
   const { data, error } = await sb.baby.rpc('admin_set_ads', {
@@ -1316,19 +1625,16 @@ document.addEventListener('click', async (e) => {
   if (error) {
     alert('변경 실패: ' + error.message);
     b.disabled = false;
-    b.textContent = '재시도';
+    b.textContent = label;
     return;
   }
-  const row = b.closest('.ads-row');
   const on = data === true;
-  row.querySelector('.badge').className = `badge ${on ? 'ads-on' : 'ads-off'}`;
-  row.querySelector('.badge').textContent = on ? '광고 켜짐' : '광고 꺼짐';
-  b.dataset.next = String(!on);
-  b.textContent = on ? '광고 끄기' : '다시 켜기';
-  b.disabled = false;
-  const rows = [...document.querySelectorAll('#baby-ads .badge.ads-off')].length;
-  const total = [...document.querySelectorAll('#baby-ads .ads-row')].length;
-  $('#ads-cnt').textContent = `${total}계정${rows ? ` · 광고 꺼짐 ${rows}` : ''}`;
+  const rec = (usr.rows ?? []).find((r) => String(r.user_id) === b.dataset.uid);
+  if (rec) rec.ads_enabled = on;
+  const cell = b.closest('.u-ads');
+  if (cell) cell.innerHTML = adsCellHtml(rec ?? { user_id: b.dataset.uid, ads_enabled: on });
+  renderUsrStats(usrFiltered());
+  toast(on ? '광고 켜짐' : '광고 꺼짐');
 });
 
 // ── 문의 카드 ─────────────────────────
@@ -1362,8 +1668,8 @@ function normDM(r) {
   };
 }
 
-const MAIL_SUBJECT = { baby: '[아기의 하루] 문의 답변드립니다', dm: '[DeskMoment] 문의 답변드립니다' };
-const MAIL_GREETING = { baby: '안녕하세요, 아기의 하루입니다.', dm: '안녕하세요, DeskMoment입니다.' };
+const MAIL_SUBJECT = { baby: '[아가하루] 문의 답변드립니다', dm: '[DeskMoment] 문의 답변드립니다' };
+const MAIL_GREETING = { baby: '안녕하세요, 아가하루입니다.', dm: '안녕하세요, DeskMoment입니다.' };
 
 function cardHtml(it, isNew = false) {
   const replied = !!(it.reply && it.reply.trim());
