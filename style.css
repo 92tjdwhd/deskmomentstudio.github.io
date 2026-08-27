@@ -217,14 +217,8 @@ img { max-width: 100%; height: auto; display: block; }
 }
 .card:hover { border-color: var(--border-strong); transform: translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { .card:hover { transform: none; } }
-.card-icon { width: 52px; height: 52px; border-radius: 13px; border: 1px solid var(--border); margin-bottom: 14px; }
-/* 아이콘 파일이 없는 앱 — 자리를 비우면 카드마다 제목 높이가 어긋난다 */
-.card-mono {
-  width: 52px; height: 52px; border-radius: 13px;
-  border: 1px solid var(--border); background: var(--bg-alt);
-  display: grid; place-items: center; margin-bottom: 14px;
-  font-size: 0.92rem; font-weight: 800; letter-spacing: -0.02em; color: var(--dim);
-}
+.card-icon { width: 52px; height: 52px; border-radius: 13px; border: 1px solid var(--border); margin-bottom: 14px; object-fit: cover; }
+
 .card h3 { margin: 0 0 8px; font-size: 1.08rem; letter-spacing: -0.02em; font-weight: 800; }
 .card p { margin: 0; color: var(--text-2); font-size: 0.92rem; }
 .badge {
