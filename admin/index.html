@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>DeskMoment Studio — Admin</title>
+<link rel="icon" href="../assets/app-deskmoment.png">
 <style>
   :root {
     --bg: #ffffff;
@@ -59,6 +60,7 @@
   .side-nav [data-app="dm"]     { --c: var(--c-dm);     --c-soft: var(--c-dm-soft); }
   .side-cap { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-muted); padding: 7px 10px 5px; }
   .side-nav a.nav-app { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-2); padding: 8px 10px; border-radius: 10px; }
+  .side-nav a.nav-app .ico { width: 17px; height: 17px; border-radius: 5px; flex: 0 0 auto; object-fit: cover; }
   .side-nav a.nav-app:hover { background: var(--accent-soft); }
   .side-nav a.nav-app.active { background: var(--c-soft); color: var(--c); }
   .side-nav .dot { margin-left: auto; background: var(--new); color: #fff; font-size: 0.62rem; border-radius: 99px; padding: 0 6px; font-weight: 800; }
@@ -196,7 +198,8 @@
   .rank-row .n { font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 0.75rem; white-space: nowrap; }
   .rank-row .n b { color: var(--text); font-size: 0.82rem; }
   .sect-head { display: flex; align-items: center; gap: 11px; margin-bottom: 16px; flex-wrap: wrap; }
-  .app-ico { width: 40px; height: 40px; border-radius: 13px; background: var(--c-soft); display: grid; place-items: center; font-size: 1.25rem; }
+  .app-ico { width: 40px; height: 40px; border-radius: 13px; background: var(--c-soft); display: grid; place-items: center; font-size: 1.25rem; overflow: hidden; }
+  .app-ico img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .sect-head h2 { font-size: 1.06rem; margin: 0; letter-spacing: -0.01em; line-height: 1.25; }
   .sect-head .sub { display: block; font-size: 0.74rem; color: var(--text-muted); font-weight: 500; }
   .live-dot { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
@@ -359,16 +362,16 @@
     <nav class="side-nav" id="top-nav">
       <div class="side-cap">앱</div>
 
-      <a href="#" class="nav-app" data-app="baby">👶 아가하루<span class="dot" hidden></span></a>
+      <a href="#" class="nav-app" data-app="baby"><img class="ico" src="../assets/app-agaharu.png" alt="">아가하루<span class="dot" hidden></span></a>
       <div class="side-subs" data-app="baby" hidden>
         <a href="#" data-app="baby" data-sub="an" class="on">애널리틱스</a>
         <a href="#" data-app="baby" data-sub="users">회원 관리</a>
         <a href="#" data-app="baby" data-sub="inq">문의<span class="dot" hidden></span></a>
       </div>
 
-      <a href="#" class="nav-app" data-app="haru">📅 오늘하루<span class="dot" hidden></span></a>
+      <a href="#" class="nav-app" data-app="haru"><img class="ico" src="../assets/app-haru.png" alt="">오늘하루<span class="dot" hidden></span></a>
 
-      <a href="#" class="nav-app" data-app="lotto">🎰 로또정석</a>
+      <a href="#" class="nav-app" data-app="lotto"><img class="ico" src="../assets/app-lotto.png" alt="">로또정석</a>
       <div class="side-subs" data-app="lotto" hidden>
         <a href="#" data-app="lotto" data-sub="an" class="on">애널리틱스</a>
         <a href="#" data-app="lotto" data-sub="config">앱 설정</a>
@@ -377,8 +380,8 @@
         <a href="#" data-app="lotto" data-sub="notice">공지 관리</a>
       </div>
 
-      <a href="#" class="nav-app" data-app="hanjul">💬 한줄</a>
-      <a href="#" class="nav-app" data-app="dm">🖥 DeskMoment<span class="dot" hidden></span></a>
+      <a href="#" class="nav-app" data-app="hanjul"><img class="ico" src="../assets/app-hanjul.png" alt="">한줄</a>
+      <a href="#" class="nav-app" data-app="dm"><img class="ico" src="../assets/app-deskmoment.png" alt="">DeskMoment<span class="dot" hidden></span></a>
     </nav>
   </aside>
 
@@ -400,7 +403,7 @@
 
     <section class="app-sect" id="sect-baby" data-app="baby">
       <div class="sect-head">
-        <div class="app-ico">👶</div>
+        <div class="app-ico"><img src="../assets/app-agaharu.png" alt="아가하루 앱 아이콘"></div>
         <h2>아가하루<span class="sub">육아 기록 · 출시됨 · 회원 관리 + 서버 지표 + 문의</span></h2>
         <div class="head-right">
           <div class="live-dot" hidden data-live="baby"><i></i>실시간</div>
@@ -454,7 +457,7 @@
 
     <section class="app-sect" id="sect-haru" data-app="haru">
       <div class="sect-head">
-        <div class="app-ico">📅</div>
+        <div class="app-ico"><img src="../assets/app-haru.png" alt="오늘하루 앱 아이콘"></div>
         <h2>오늘하루<span class="sub">만세력·사주 달력 · 답변은 사용자 앱에 표시됨</span></h2>
         <div class="head-right">
           <div class="live-dot" hidden data-live="haru"><i></i>실시간</div>
@@ -471,7 +474,7 @@
 
     <section class="app-sect" id="sect-lotto" data-app="lotto">
       <div class="sect-head">
-        <div class="app-ico">🎰</div>
+        <div class="app-ico"><img src="../assets/app-lotto.png" alt="로또정석 앱 아이콘"></div>
         <h2>로또정석<span class="sub">번호 생성·분석 · 서버 문의함 없음 (스토어/메일)</span></h2>
         <div class="head-right">
           <div class="seg sect-days" data-app="lotto">
@@ -514,7 +517,7 @@
 
     <section class="app-sect" id="sect-hanjul" data-app="hanjul">
       <div class="sect-head">
-        <div class="app-ico">💬</div>
+        <div class="app-ico"><img src="../assets/app-hanjul.png" alt="한줄 앱 아이콘"></div>
         <h2>한줄<span class="sub">감정 기반 명언·위로 · 익명 이벤트 (DAU 없음) · 문의는 메일</span></h2>
         <div class="head-right">
           <div class="seg sect-days" data-app="hanjul">
@@ -528,7 +531,7 @@
 
     <section class="app-sect" id="sect-dm" data-app="dm">
       <div class="sect-head">
-        <div class="app-ico">🖥</div>
+        <div class="app-ico"><img src="../assets/app-deskmoment.png" alt="DeskMoment 앱 아이콘"></div>
         <h2>DeskMoment<span class="sub">데스크 셋업 큐레이션 웹 · 라이브 (deskmoment.com)</span></h2>
         <div class="head-right">
           <div class="live-dot" hidden data-live="dm"><i></i>실시간</div>
