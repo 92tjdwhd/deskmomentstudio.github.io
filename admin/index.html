@@ -109,6 +109,8 @@
   #login-view button:hover { opacity: 0.92; }
   #login-view button:disabled { opacity: 0.5; }
   #login-msg { font-size: 0.79rem; margin-top: 12px; color: var(--bad); white-space: pre-line; }
+  /* 세션 복원이 끝나기 전에 로그인 폼이 번쩍이지 않도록 */
+  #boot { max-width: 380px; margin: 110px auto 0; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
 
   /* ── 앱 섹션 ───────────────────────────── */
   .app-sect { display: none; margin-top: 26px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px 24px 24px; box-shadow: 0 2px 10px rgba(17,24,39,0.03); }
@@ -329,6 +331,13 @@
   }
   .reply-actions button.primary { background: var(--c); border-color: var(--c); color: #fff; }
   .reply-actions button.primary:hover { opacity: 0.9; }
+  .reply-actions button:disabled { opacity: 0.45; cursor: default; }
+  .reply-actions button.primary:disabled:hover { opacity: 0.45; }
+  .reply-actions button.danger { border-color: var(--bad); background: var(--bad); color: #fff; }
+  /* 답변이 등록된 문의는 읽기 전용으로 굳는다 — 실수로 덮어쓰지 않도록 */
+  .reply-done { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--ok); border-radius: var(--radius-md); padding: 9px 12px; }
+  .reply-done .cap { font-size: 0.66rem; font-weight: 800; color: var(--ok); margin-bottom: 3px; }
+  .reply-done .body { font-size: 0.85rem; white-space: pre-wrap; word-break: break-word; }
   .reply-note { font-size: 0.69rem; color: var(--text-muted); }
   .save-state { font-size: 0.73rem; font-weight: 700; }
   .save-state.ok { color: var(--ok); }
@@ -387,7 +396,9 @@
 
   <main class="main">
 
-  <div id="login-view">
+  <div id="boot">세션 확인 중…</div>
+
+  <div id="login-view" hidden>
     <div class="mark">DM</div>
     <h1>어드민 콘솔</h1>
     <p>아가하루 · 오늘하루 · 로또정석 · 한줄 · DeskMoment의 문의와 지표를 한 곳에서.</p>
@@ -625,32 +636,67 @@ function kst(ts) {
 }
 
 // ── 로그인 ─────────────────────────────
+const anyConnected = () => Object.values(connected).some(Boolean);
+
+// 로그인 판정은 반드시 "이번 시도"의 결과여야 한다. 지난 판정이 남아 있으면
+// 비밀번호가 틀려도 그 값 때문에 통과해 버린다.
+function resetConnections() {
+  for (const k of Object.keys(PROJECTS)) connected[k] = false;
+}
+
+// 브라우저에 남은 토큰만 지운다(scope: local). 다른 기기의 세션은 건드리지 않는다.
+const dropLocal = (k) => sb[k].auth.signOut({ scope: 'local' }).catch(() => {});
+
+// admin_users 는 RLS 가 "본인 행만" 으로 잠겨 있어서, 행이 돌아오면 화이트리스트에 있다는 뜻.
+// 액세스 토큰이 막 만료된 직후일 수 있으니 한 번은 갱신하고 다시 본다.
+async function isAdmin(k, retry = true) {
+  const { data, error } = await sb[k].from('admin_users').select('user_id').limit(1).maybeSingle();
+  if (!error) return !!data;
+  if (retry && /jwt|token|expired|401/i.test(error.message ?? '')) {
+    const { data: r } = await sb[k].auth.refreshSession();
+    if (r?.session) return isAdmin(k, false);
+  }
+  throw new Error(error.message ?? '알 수 없는 오류');
+}
+
 async function tryLogin(email, password) {
+  resetConnections();
   const msgs = [];
   for (const [k, p] of Object.entries(PROJECTS)) {
+    await dropLocal(k);   // 남아 있던 세션이 이번 판정에 섞이지 않도록 먼저 끊는다
     const { error } = await sb[k].auth.signInWithPassword({ email, password });
     if (error) { msgs.push(`✗ ${p.label}: ${error.message}`); continue; }
-    const { data: me } = await sb[k].auth.getUser();
-    const { data: adminRow, error: aerr } = await sb[k].from('admin_users').select('user_id').eq('user_id', me.user.id).maybeSingle();
-    if (aerr || !adminRow) {
+    try {
+      if (await isAdmin(k)) { connected[k] = true; continue; }
       msgs.push(`✗ ${p.label}: admin_users 화이트리스트에 없음 (setup SQL 확인)`);
-      await sb[k].auth.signOut();
-    } else connected[k] = true;
+    } catch (e) {
+      msgs.push(`✗ ${p.label}: 화이트리스트 확인 실패 — ${e.message}`);
+    }
+    await dropLocal(k);
   }
   return msgs;
 }
 
+// 프로젝트 하나가 느리거나 죽어도 나머지 복원까지 막으면 안 된다 —
+// 예전엔 순차 + try 없이 돌아서, 한 곳이 던지면 부팅이 통째로 멈추고
+// 세션이 멀쩡한데도 로그인 화면으로 떨어졌다.
 async function restoreSessions() {
-  for (const k of Object.keys(PROJECTS)) {
-    const { data } = await sb[k].auth.getSession();
-    if (data.session) {
-      const { data: adminRow } = await sb[k].from('admin_users').select('user_id').eq('user_id', data.session.user.id).maybeSingle();
-      connected[k] = !!adminRow;
+  resetConnections();
+  await Promise.all(Object.keys(PROJECTS).map(async (k) => {
+    try {
+      const { data } = await sb[k].auth.getSession();
+      if (!data.session) return;
+      if (await isAdmin(k)) connected[k] = true;
+      else await dropLocal(k);            // 화이트리스트에서 빠진 계정
+    } catch (e) {
+      // 일시적 실패는 세션을 지우지 않는다 — 다음 새로고침에 살아난다
+      console.warn('[admin] 세션 복원 실패:', k, e.message);
     }
-  }
+  }));
 }
 
 function enterApp() {
+  $('#boot').hidden = true;
   $('#login-view').hidden = true;
   $('#app-view').hidden = false;
   $('#side').hidden = false;
@@ -743,16 +789,21 @@ function bumpDot(app) {
 }
 
 $('#login-btn').addEventListener('click', async () => {
-  const btn = $('#login-btn'); btn.disabled = true;
+  const email = $('#email').value.trim();
+  const password = $('#password').value;
   $('#login-msg').textContent = '';
-  const msgs = await tryLogin($('#email').value.trim(), $('#password').value);
-  btn.disabled = false;
-  if (connected.baby || connected.rsscu || connected.dm) {
+  if (!email || !password) { $('#login-msg').textContent = '이메일과 비밀번호를 모두 입력하세요.'; return; }
+  const btn = $('#login-btn'); btn.disabled = true; btn.textContent = '로그인 중…';
+  const msgs = await tryLogin(email, password);
+  btn.disabled = false; btn.textContent = '로그인';
+  if (anyConnected()) {
     enterApp();
     if (msgs.length) alert(msgs.join('\n'));
   } else $('#login-msg').textContent = msgs.join('\n') || '로그인 실패';
 });
-$('#password').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#login-btn').click(); });
+for (const sel of ['#email', '#password']) {
+  $(sel).addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#login-btn').click(); });
+}
 $('#logout').addEventListener('click', async () => {
   for (const k of Object.keys(PROJECTS)) await sb[k].auth.signOut();
   location.reload();
@@ -1714,34 +1765,81 @@ function normDM(r) {
 const MAIL_SUBJECT = { baby: '[아가하루] 문의 답변드립니다', dm: '[DeskMoment] 문의 답변드립니다' };
 const MAIL_GREETING = { baby: '안녕하세요, 아가하루입니다.', dm: '안녕하세요, DeskMoment입니다.' };
 
+// 답변이 등록된 문의는 기본이 "읽기 전용 + 수정 버튼" 이다.
+// 편집 중인 카드만 여기 담기고, 목록이 다시 그려져도 편집 상태는 유지된다.
+const editing = new Set();
+const itemOf = (key) => [...state.baby, ...state.haru, ...state.dm].find((x) => x.key === key);
+const cardOf = (key) => [...document.querySelectorAll('.card')].find((c) => c.dataset.key === key);
+const hasReply = (it) => !!(it.reply && it.reply.trim());
+
+const MAIL_NOTE = {
+  haru: '저장하면 앱의 건의 내역에서 사용자에게 보입니다',
+  _: '저장된 답변은 기록용 — 사용자 전달은 메일로',
+};
+
 function cardHtml(it, isNew = false) {
-  const replied = !!(it.reply && it.reply.trim());
+  const replied = hasReply(it);
   const mailable = it.app === 'baby' || it.app === 'dm';
   const mailBtn = mailable && it.contactEmail
     ? `<a class="mail-btn" data-key="${esc(it.key)}" href="#">📧 메일로 답장</a>` : '';
   const emailChip = mailable
     ? `<span>${it.contactEmail ? '✉️ ' + esc(it.contactEmail) : '✉️ 회신 주소 없음'}</span>` : '';
-  const note = it.app === 'haru'
-    ? '저장하면 앱의 건의 내역에서 사용자에게 보입니다'
-    : '저장된 답변은 기록용 — 사용자 전달은 메일로';
+  const note = MAIL_NOTE[it.app] ?? MAIL_NOTE._;
+
+  const body = (replied && !editing.has(it.key))
+    ? `<div class="reply-done">
+         <div class="cap">등록된 답변</div>
+         <div class="body">${esc(it.reply)}</div>
+       </div>
+       <div class="reply-actions">
+         <button class="edit-btn" data-key="${esc(it.key)}">답변 수정</button>
+         ${mailBtn}
+         <span class="save-state"></span>
+         <span class="reply-note">${note}</span>
+       </div>`
+    : `<textarea placeholder="답변…">${esc(it.reply ?? '')}</textarea>
+       <div class="reply-actions">
+         <button class="primary save-btn" data-key="${esc(it.key)}" disabled>${replied ? '수정 저장' : '답변 등록'}</button>
+         ${replied ? `<button class="cancel-btn" data-key="${esc(it.key)}">취소</button>` : ''}
+         ${mailBtn}
+         <span class="save-state"></span>
+         <span class="reply-note">${note}</span>
+       </div>`;
+
   return `<div class="card ${isNew ? 'new-item' : ''}" data-key="${esc(it.key)}">
     <div class="card-top">
       ${isNew ? '<span class="badge newbadge">NEW</span>' : ''}
-      ${replied ? '<span class="badge replied">답변됨</span>' : '<span class="badge pending">답변 대기</span>'}
+      ${replied ? '<span class="badge replied">답변 완료</span>' : '<span class="badge pending">답변 대기</span>'}
       <span class="when">${esc(kst(it.createdAt))}</span>
     </div>
     <div class="msg">${esc(it.message)}</div>
     <div class="meta">${it.meta.map((m) => `<span>${esc(m)}</span>`).join('')}${emailChip}</div>
-    <div class="reply-box">
-      <textarea placeholder="답변…">${esc(it.reply ?? '')}</textarea>
-      <div class="reply-actions">
-        <button class="primary save-btn" data-key="${esc(it.key)}">답변 저장</button>
-        ${mailBtn}
-        <span class="save-state"></span>
-        <span class="reply-note">${note}</span>
-      </div>
-    </div>
+    <div class="reply-box">${body}</div>
   </div>`;
+}
+
+// 저장 버튼은 "지금 바뀐 게 있을 때"만 열린다. 늘 눌러지는 버튼은
+// 저장이 됐는지 안 됐는지를 알려주지 못한다.
+function syncSaveBtn(card) {
+  const btn = card.querySelector('.save-btn');
+  const ta = card.querySelector('textarea');
+  if (!btn || !ta) return;
+  const it = itemOf(card.dataset.key);
+  if (!it) return;
+  const cur = ta.value.trim();
+  const saved = (it.reply ?? '').trim();
+  if (cur === saved) { btn.disabled = true; btn.classList.remove('danger'); btn.classList.add('primary'); btn.textContent = saved ? '수정 저장' : '답변 등록'; return; }
+  btn.disabled = false;
+  if (!cur && saved) { btn.classList.remove('primary'); btn.classList.add('danger'); btn.textContent = '답변 삭제'; }
+  else { btn.classList.remove('danger'); btn.classList.add('primary'); btn.textContent = saved ? '수정 저장' : '답변 등록'; }
+}
+
+function updateCount(app) {
+  const items = state[app];
+  const cnt = $('#' + app + '-cnt');
+  const waiting = items.filter((x) => !hasReply(x)).length;
+  cnt.hidden = !items.length;
+  cnt.textContent = `${items.length}건${waiting ? ` · 대기 ${waiting}` : ''}`;
 }
 
 function renderList(app) {
@@ -1750,17 +1848,30 @@ function renderList(app) {
   el.innerHTML = items.length
     ? items.map((it) => cardHtml(it)).join('')
     : '<div class="empty">아직 없음 — 새로 오면 실시간으로 뜹니다</div>';
-  const cnt = $('#' + app + '-cnt');
-  const waiting = items.filter((x) => !(x.reply && x.reply.trim())).length;
-  cnt.hidden = !items.length;
-  cnt.textContent = `${items.length}건${waiting ? ` · 대기 ${waiting}` : ''}`;
+  updateCount(app);
+}
+
+// 목록 전체를 다시 그리면 방금 띄운 "저장됨 ✓" 도 같이 날아간다 —
+// 바뀐 카드 하나만 갈아 끼운다.
+function rerenderCard(it, msg) {
+  const card = cardOf(it.key);
+  if (!card) { renderList(it.app); return; }
+  card.outerHTML = cardHtml(it, card.classList.contains('new-item'));
+  const fresh = cardOf(it.key);
+  if (fresh && msg) {
+    const st = fresh.querySelector('.save-state');
+    st.textContent = msg; st.className = 'save-state ok';
+  }
+  updateCount(it.app);
 }
 
 async function saveReply(key, card) {
-  const it = [...state.baby, ...state.haru, ...state.dm].find((x) => x.key === key);
+  const it = itemOf(key);
   if (!it) return;
-  const text = card.querySelector('textarea').value;
+  const text = card.querySelector('textarea').value.trim();
+  const btn = card.querySelector('.save-btn');
   const stateEl = card.querySelector('.save-state');
+  btn.disabled = true;
   stateEl.textContent = '저장 중…'; stateEl.className = 'save-state';
   let error;
   if (it.app === 'baby') {
@@ -1777,25 +1888,54 @@ async function saveReply(key, card) {
   }
   if (error) {
     stateEl.textContent = '실패: ' + error.message; stateEl.className = 'save-state bad';
-  } else {
-    it.reply = text;
-    stateEl.textContent = '저장됨 ✓'; stateEl.className = 'save-state ok';
-    renderList(it.app);
+    btn.disabled = false;
+    return;
   }
+  const removed = !text;
+  it.reply = text;
+  editing.delete(key);
+  rerenderCard(it, removed ? '답변 삭제됨' : '저장됨 ✓');
 }
 
 document.addEventListener('click', (e) => {
   const save = e.target.closest('.save-btn');
   if (save) { saveReply(save.dataset.key, save.closest('.card')); return; }
+
+  const edit = e.target.closest('.edit-btn');
+  if (edit) {
+    const it = itemOf(edit.dataset.key);
+    if (!it) return;
+    editing.add(it.key);
+    rerenderCard(it);
+    cardOf(it.key)?.querySelector('textarea')?.focus();
+    return;
+  }
+
+  const cancel = e.target.closest('.cancel-btn');
+  if (cancel) {
+    const it = itemOf(cancel.dataset.key);
+    if (!it) return;
+    editing.delete(it.key);
+    rerenderCard(it);
+    return;
+  }
+
   const mail = e.target.closest('.mail-btn');
   if (mail) {
     e.preventDefault();
-    const it = [...state.baby, ...state.dm].find((x) => x.key === mail.dataset.key);
+    const it = itemOf(mail.dataset.key);
     if (!it) return;
-    const reply = mail.closest('.card').querySelector('textarea').value;
+    // 편집 중이면 지금 쓰고 있는 글, 아니면 등록된 답변을 싣는다
+    const card = mail.closest('.card');
+    const reply = card.querySelector('textarea')?.value ?? it.reply ?? '';
     const body = `${MAIL_GREETING[it.app]}\n\n${reply}\n\n---- 보내주신 문의 ----\n${it.message}`;
     location.href = `mailto:${encodeURIComponent(it.contactEmail)}?subject=${encodeURIComponent(MAIL_SUBJECT[it.app])}&body=${encodeURIComponent(body)}`;
   }
+});
+
+document.addEventListener('input', (e) => {
+  const ta = e.target.closest('.reply-box textarea');
+  if (ta) syncSaveBtn(ta.closest('.card'));
 });
 
 function subscribeRealtime() {
@@ -1911,8 +2051,12 @@ document.addEventListener('pointerout', (e) => {
 });
 
 // ── 시작 ─────────────────────────
-await restoreSessions();
-if (connected.baby || connected.rsscu) enterApp();
+// restoreSessions 는 스스로 안 던지지만, 만에 하나라도 로그인 화면조차
+// 못 그리는 일이 없도록 한 겹 더 감싼다.
+try { await restoreSessions(); } catch (e) { console.warn('[admin] 세션 복원 중단:', e); }
+$('#boot').hidden = true;
+if (anyConnected()) enterApp();
+else $('#login-view').hidden = false;
 </script>
 </body>
 </html>
