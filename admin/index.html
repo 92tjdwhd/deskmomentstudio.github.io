@@ -479,7 +479,7 @@
       </div>
       <div id="haru-err"></div>
       <div id="haru-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
-      <div class="inq-title">건의 <span class="cnt" id="haru-cnt" hidden></span></div>
+      <div class="inq-title">건의·문의 <span class="cnt" id="haru-cnt" hidden></span></div>
       <div id="list-haru"><div class="sk sk-card"></div></div>
     </section>
 
@@ -917,7 +917,7 @@ async function loadHaru() {
     ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}</div>`
     : anBlock(an.data, top.data, days);
   if (fb.error) {
-    $('#haru-err').innerHTML = `<div class="sect-err">건의 조회 실패: ${esc(fb.error.message)}</div>`;
+    $('#haru-err').innerHTML = `<div class="sect-err">건의·문의 조회 실패: ${esc(fb.error.message)}</div>`;
   } else {
     state.haru = fb.data.map(normHaru);
     renderList('haru');
@@ -1742,7 +1742,8 @@ function normBaby(r) {
 }
 function normHaru(r) {
   return {
-    app: 'haru', key: 'haru-' + r.device_id + '-' + r.created_at,
+    app: 'haru', key: 'haru-' + (r.id ?? r.device_id + '-' + r.created_at),
+    id: r.id ?? null,
     deviceId: r.device_id,
     message: r.content, createdAt: r.created_at,
     reply: r.reply,
@@ -1882,9 +1883,12 @@ async function saveReply(key, card) {
     // 답변 유무에 따라 status 까지 함께 바뀐다 (deskmoment.com/admin 과 같은 동작)
     ({ error } = await sb.dm.rpc('admin_dm_reply_inquiry', { p_id: it.id, p_reply: text }));
   } else {
-    ({ error } = await sb.rsscu.from('oneulharu_feedback')
-      .update({ reply: text || null })
-      .eq('device_id', it.deviceId).eq('created_at', it.createdAt));
+    // id 가 있으면 그걸로 짚는다. (기기, 작성시각) 조합은 타임스탬프 표기가
+    // 조금만 달라져도 0건 업데이트가 조용히 성공으로 돌아온다.
+    const base = sb.rsscu.from('oneulharu_feedback').update({ reply: text || null });
+    ({ error } = await (it.id != null
+      ? base.eq('id', it.id)
+      : base.eq('device_id', it.deviceId).eq('created_at', it.createdAt)));
   }
   if (error) {
     stateEl.textContent = '실패: ' + error.message; stateEl.className = 'save-state bad';
