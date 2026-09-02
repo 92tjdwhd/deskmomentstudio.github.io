@@ -17,6 +17,8 @@
    - 같은 이메일 · **같은 비밀번호** (어드민 페이지가 한 번의 로그인으로 두 프로젝트에 접속)
    - Email provider가 꺼져 있으면 Authentication → Providers에서 Email 활성화
 2. SQL Editor에서 `oneulharu-lotto.sql` 전체 실행
+3. 같은 자리에서 `hanjul.sql`, `lotto-admin.sql`, `haru-memo.sql` 도 실행
+   - `haru-memo.sql` = 오늘하루 일진 기록(메모) 지표. 앱 1.2.0 이벤트를 읽는다
 
 ## 3. DeskMoment 프로젝트 (jfbrqvljvbckrhiivmyy, 별도 계정)
 

@@ -379,6 +379,11 @@
       </div>
 
       <a href="#" class="nav-app" data-app="haru"><img class="ico" src="../assets/app-haru.png" alt="">오늘하루<span class="dot" hidden></span></a>
+      <div class="side-subs" data-app="haru" hidden>
+        <a href="#" data-app="haru" data-sub="an" class="on">애널리틱스</a>
+        <a href="#" data-app="haru" data-sub="memo">일진 기록</a>
+        <a href="#" data-app="haru" data-sub="inq">건의·문의<span class="dot" hidden></span></a>
+      </div>
 
       <a href="#" class="nav-app" data-app="lotto"><img class="ico" src="../assets/app-lotto.png" alt="">로또정석</a>
       <div class="side-subs" data-app="lotto" hidden>
@@ -477,10 +482,26 @@
           </div>
         </div>
       </div>
+      <nav class="subnav" id="haru-subnav">
+        <button data-sub="an" class="on">애널리틱스</button>
+        <button data-sub="memo">일진 기록</button>
+        <button data-sub="inq">건의·문의</button>
+      </nav>
+
       <div id="haru-err"></div>
-      <div id="haru-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
-      <div class="inq-title">건의·문의 <span class="cnt" id="haru-cnt" hidden></span></div>
-      <div id="list-haru"><div class="sk sk-card"></div></div>
+
+      <div class="subpane" data-sub="an">
+        <div id="haru-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="memo" hidden>
+        <div id="haru-memo"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="inq" hidden>
+        <div class="inq-title">건의·문의 <span class="cnt" id="haru-cnt" hidden></span></div>
+        <div id="list-haru"><div class="sk sk-card"></div></div>
+      </div>
     </section>
 
     <section class="app-sect" id="sect-lotto" data-app="lotto">
@@ -714,9 +735,9 @@ function enterApp() {
 
 // ── 탭 전환 (좌측 사이드바 — 앱 하나씩만 표시) ─────────────────
 // 하위 탭이 있는 앱은 사이드바에서 펼쳐지고, 좁은 화면에선 섹션 안 탭 줄(.subnav)이 대신한다.
-const SUB_DEFAULT = { baby: 'an', lotto: 'an' };
+const SUB_DEFAULT = { baby: 'an', haru: 'an', lotto: 'an' };
 const subState = { ...SUB_DEFAULT };
-const INQ_SUB = { baby: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
+const INQ_SUB = { baby: 'inq', haru: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
 
 function showTab(app) {
   document.querySelectorAll('.app-sect').forEach((s) => s.classList.toggle('active', s.dataset.app === app));
@@ -736,6 +757,11 @@ const SUB_HOOK = {
   baby(sub) {
     document.querySelector('.sect-days[data-app="baby"]').style.visibility = sub === 'an' ? '' : 'hidden';
     if (sub === 'users') loadBabyUsers();
+  },
+  haru(sub) {
+    // 기간 세그먼트는 애널리틱스와 기록 두 탭 모두에서 쓰인다
+    document.querySelector('.sect-days[data-app="haru"]').style.visibility = sub === 'inq' ? 'hidden' : '';
+    if (sub === 'memo') loadHaruMemo();
   },
   lotto(sub) {
     ltState.sub = sub;
@@ -816,6 +842,7 @@ document.addEventListener('click', (e) => {
   state.days[app] = Number(b.dataset.d);
   b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
   ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM })[app]();
+  if (app === 'haru' && subState.haru === 'memo') loadHaruMemo();
 });
 
 // ── 데이터 로드 ─────────────────────────
@@ -922,6 +949,136 @@ async function loadHaru() {
     state.haru = fb.data.map(normHaru);
     renderList('haru');
   }
+}
+
+// ── 오늘하루 일진 기록(메모) ─────────────────
+// 이름별 총량은 이벤트 상위 목록에도 뜨지만, 답을 가진 건 params 안이다 —
+// days_ago 가 '오늘을 적는 습관'과 '과거를 채우는 습관'을 가른다.
+// → admin/setup/haru-memo.sql
+let memoLoading = false;
+
+async function loadHaruMemo() {
+  const el = $('#haru-memo');
+  if (!connected.rsscu) { el.innerHTML = '<div class="sect-err">프로젝트 미연결</div>'; return; }
+  if (memoLoading) return;
+  memoLoading = true;
+  const { data, error } = await sb.rsscu.rpc('admin_haru_memo', { p_days: state.days.haru });
+  memoLoading = false;
+  if (error) {
+    el.innerHTML = `<div class="sect-err">기록 지표 조회 실패: ${esc(error.message)}
+setup SQL(admin/setup/haru-memo.sql)을 아직 안 돌렸다면 그것부터 실행하세요.</div>`;
+    return;
+  }
+  el.innerHTML = memoBlock(data ?? {});
+}
+
+// 분모가 0일 때 '0%' 는 거짓말이다 — 비율을 아예 접는다.
+// 분자가 비어 오는 경우(그 이벤트가 아직 한 번도 안 옴)는 0 으로 읽는다.
+function ratio(n, d) {
+  const den = Number(d) || 0;
+  if (!den) return '—';
+  return `${Math.round(((Number(n) || 0) / den) * 100)}%`;
+}
+function flat(text) { return `<span class="d flat">${esc(text)}</span>`; }
+
+// 이름 · 막대 · 숫자 (이벤트 상위 목록과 같은 생김새)
+function kvBars(rows, labels = {}) {
+  const list = rows ?? [];
+  const max = Math.max(1, ...list.map((r) => Number(r.cnt)));
+  if (!list.length) return '<div class="empty">데이터 없음</div>';
+  return `<div class="ev-rows">${list.map((r) => `
+    <div class="ev-row">
+      <div class="name">${esc(labels[r.k] ?? r.k)}</div>
+      <div class="track"><div class="fill" style="width:${Math.max(1, Math.round((r.cnt / max) * 100))}%"></div></div>
+      <div class="num"><b>${fmt(r.cnt)}</b>${r.devices != null ? ` · ${fmt(r.devices)}기기` : ''}</div>
+    </div>`).join('')}</div>`;
+}
+
+const MEMO_ENTRY_LABEL = { bar: '상세 하단 기록 바', appbar: '상단 아이콘' };
+const MEMO_TAG_LABEL = { record: '기록 화면에서', settings: '설정에서' };
+
+function memoBlock(m) {
+  const days = m.days ?? state.days.haru;
+  const daily = m.daily ?? [];
+  const saves = Number(m.saves ?? 0);
+
+  if (!saves && !Number(m.devices_memo ?? 0)) {
+    return `<div class="empty">아직 기록 이벤트가 없습니다 — 1.2.0 배포 직후라면 정상입니다.
+      (오늘하루 이벤트 자체는 ${fmt(m.devices_total ?? 0)}기기에서 들어오는 중)</div>`;
+  }
+
+  const tiles = statHtml([
+    {
+      k: `기록 남긴 기기 · ${days}일`,
+      v: fmt(m.devices_memo ?? 0),
+      d: flat(`앱 쓴 ${fmt(m.devices_total ?? 0)}기기 중 ${ratio(m.devices_memo, m.devices_total)}`),
+    },
+    {
+      k: '저장',
+      v: fmt(saves),
+      d: flat(`새로 ${fmt(m.saves_new ?? 0)} · 고쳐 ${fmt(m.saves_edit ?? 0)} · 지움 ${fmt(m.deletes ?? 0)}`),
+    },
+    {
+      // 리텐션에 기여하는 쪽은 '오늘을 적는' 습관이다
+      k: '오늘을 적음',
+      v: ratio(m.saves_today, saves),
+      d: flat(`오늘 ${fmt(m.saves_today ?? 0)} · 과거 ${fmt(m.saves_past ?? 0)}${
+        Number(m.saves_future ?? 0) ? ` · 미래 ${fmt(m.saves_future)}` : ''}`),
+    },
+    {
+      k: '메모 글까지 씀',
+      v: ratio(m.with_note, saves),
+      d: flat(`${fmt(m.with_note ?? 0)}건 — 나머지는 태그만 찍음`),
+    },
+  ]);
+
+  const charts = daily.length
+    ? `<div class="charts2">
+         ${chartCard('일별 저장', daily, 'saves', '저장')}
+         ${chartCard('일별 기록 기기', daily, 'devices', '기기')}
+       </div>`
+    : '';
+
+  const cellOpen = Number(m.cell_open ?? 0);
+  const tagDel = Number(m.tag_delete ?? 0);
+
+  return tiles + charts + `
+    <div class="charts2">
+      <div class="chart-card">
+        <h3>기록 진입 경로<span class="last">${fmt((m.entry ?? []).reduce((a, r) => a + Number(r.cnt), 0))}회</span></h3>
+        ${kvBars(m.entry, MEMO_ENTRY_LABEL)}
+      </div>
+      <div class="chart-card">
+        <h3>태그 관리 진입<span class="last">${fmt((m.tag_manage ?? []).reduce((a, r) => a + Number(r.cnt), 0))}회</span></h3>
+        ${kvBars(m.tag_manage, MEMO_TAG_LABEL)}
+      </div>
+    </div>` +
+    statHtml([
+      {
+        // has_memo 는 셀 탭에서만 실린다 — 분모도 그 행이라 비율이 맞다
+        k: '마커 있는 날 열람',
+        v: ratio(m.cell_has_memo, cellOpen),
+        d: flat(`셀 탭 ${fmt(cellOpen)}회 중 ${fmt(m.cell_has_memo ?? 0)}회`),
+      },
+      {
+        k: '태그 직접 만듦',
+        v: fmt(m.tag_create ?? 0),
+        d: flat(m.tag_create ? '기본 3종으로는 부족했다는 뜻' : '아직 기본 3종으로 충분'),
+      },
+      {
+        // "태그를 지워도 기록은 남는다" 는 약속이 실제로 일한 횟수
+        k: '태그 삭제',
+        v: fmt(tagDel),
+        d: flat(tagDel
+          ? `그중 ${fmt(m.tag_delete_with_memo ?? 0)}건은 기록이 딸린 태그`
+          : '아직 없음'),
+      },
+      {
+        k: '기록 모드 토글',
+        v: fmt(m.mode_devices ?? 0) + '기기',
+        d: flat(`켬 ${fmt(m.mode_on ?? 0)} · 끔 ${fmt(m.mode_off ?? 0)}`),
+      },
+    ]);
 }
 
 async function loadLotto() {
