@@ -969,7 +969,12 @@ async function loadHaruMemo() {
 setup SQL(admin/setup/haru-memo.sql)을 아직 안 돌렸다면 그것부터 실행하세요.</div>`;
     return;
   }
-  el.innerHTML = memoBlock(data ?? {});
+  const m = data ?? {};
+  // 차트(barChart·툴팁)는 날짜를 row.day 에서 읽는다 — admin_daily_stats 와
+  // 같은 이름으로 맞춰 준다. 예전 SQL 이 깔린 환경에서도 그대로 동작하도록
+  // 두 이름을 다 받는다.
+  m.daily = (m.daily ?? []).map((r) => ({ ...r, day: r.day ?? r.d }));
+  el.innerHTML = memoBlock(m);
 }
 
 // 분모가 0일 때 '0%' 는 거짓말이다 — 비율을 아예 접는다.

@@ -110,7 +110,7 @@ BEGIN
     'cell_has_memo',(SELECT COUNT(*) FROM ev WHERE event = 'day_detail_open' AND COALESCE((params->>'has_memo')::bool, false)),
 
     'daily', (
-      SELECT COALESCE(jsonb_agg(jsonb_build_object('d', d, 'saves', saves, 'devices', devices) ORDER BY d), '[]'::jsonb)
+      SELECT COALESCE(jsonb_agg(jsonb_build_object('day', d, 'saves', saves, 'devices', devices) ORDER BY d), '[]'::jsonb)
         FROM (SELECT days.d,
                      (SELECT COUNT(*) FROM sv WHERE sv.d = days.d)                  AS saves,
                      (SELECT COUNT(DISTINCT sv.device_id) FROM sv WHERE sv.d = days.d) AS devices
