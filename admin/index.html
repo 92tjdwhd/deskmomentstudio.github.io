@@ -35,6 +35,8 @@
     --c-hanjul-soft: #f0fdfa;
     --c-dm: #7c3aed;
     --c-dm-soft: #f5f3ff;
+    --c-calc: #0e7490;
+    --c-calc-soft: #ecfeff;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -58,9 +60,11 @@
   .side-nav [data-app="lotto"]  { --c: var(--c-lotto);  --c-soft: var(--c-lotto-soft); }
   .side-nav [data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
   .side-nav [data-app="dm"]     { --c: var(--c-dm);     --c-soft: var(--c-dm-soft); }
+  .side-nav [data-app="calc"]   { --c: var(--c-calc);   --c-soft: var(--c-calc-soft); }
   .side-cap { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-muted); padding: 7px 10px 5px; }
   .side-nav a.nav-app { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-2); padding: 8px 10px; border-radius: 10px; }
   .side-nav a.nav-app .ico { width: 17px; height: 17px; border-radius: 5px; flex: 0 0 auto; object-fit: cover; }
+  .side-nav a.nav-app .ico.emoji { display: grid; place-items: center; background: var(--c-soft); font-size: 10px; }
   .side-nav a.nav-app:hover { background: var(--accent-soft); }
   .side-nav a.nav-app.active { background: var(--c-soft); color: var(--c); }
   .side-nav .dot { margin-left: auto; background: var(--new); color: #fff; font-size: 0.62rem; border-radius: 99px; padding: 0 6px; font-weight: 800; }
@@ -121,6 +125,7 @@
   .app-sect[data-app="lotto"] { --c: var(--c-lotto); --c-soft: var(--c-lotto-soft); }
   .app-sect[data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
   .app-sect[data-app="dm"]    { --c: var(--c-dm);    --c-soft: var(--c-dm-soft); }
+  .app-sect[data-app="calc"]  { --c: var(--c-calc);  --c-soft: var(--c-calc-soft); }
 
   /* ── 앱 안에서 화면을 더 나누는 탭 — 지금은 로또정석만 쓴다 ── */
   /* 넓은 화면에선 좌측 사이드바가 하위 탭을 대신하고, 좁은 화면에서만 이 탭 줄이 나온다 */
@@ -339,6 +344,24 @@
   .reply-done .cap { font-size: 0.66rem; font-weight: 800; color: var(--ok); margin-bottom: 3px; }
   .reply-done .body { font-size: 0.85rem; white-space: pre-wrap; word-break: break-word; }
   .reply-note { font-size: 0.69rem; color: var(--text-muted); }
+
+  /* ── 계산기연구소 (CalcLab) ─────────────── */
+  .cl-filters { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .cl-filters select { border: 1px solid var(--border); border-radius: var(--radius-md); background: var(--bg); padding: 6px 9px; font-size: 0.79rem; font-family: inherit; }
+  .cl-filters label.chk { display: inline-flex; gap: 5px; align-items: center; font-size: 0.79rem; color: var(--text-muted); cursor: pointer; }
+  .cl-kind { font-size: 0.68rem; font-weight: 800; padding: 2px 8px; border-radius: 999px; background: var(--c-soft); color: var(--c); }
+  .cl-kind.report { background: var(--bad-bg); color: var(--bad); }
+  .cl-status { display: inline-flex; gap: 4px; flex-wrap: wrap; }
+  .cl-status button { border: 1px solid var(--border); background: var(--bg); border-radius: 999px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; cursor: pointer; color: var(--text-muted); font-family: inherit; }
+  .cl-status button.on { background: var(--c); border-color: var(--c); color: #fff; }
+  .cl-status button.on.declined { background: var(--bad); border-color: var(--bad); }
+  .cl-presets { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 7px; }
+  .cl-presets button { border: 1px dashed var(--border); background: var(--bg); border-radius: var(--radius-md); padding: 4px 9px; font-size: 0.72rem; cursor: pointer; color: var(--text-muted); font-family: inherit; }
+  .cl-presets button:hover { border-color: var(--bad); color: var(--bad); }
+  .cl-more { margin-top: 9px; }
+  .cl-more summary { font-size: 0.74rem; color: var(--text-muted); cursor: pointer; font-weight: 600; }
+  .cl-ctx .cap { font-size: 0.66rem; font-weight: 800; color: var(--c); margin: 8px 0 3px; }
+  .cl-funnel { grid-template-columns: repeat(3, 1fr); }
   .save-state { font-size: 0.73rem; font-weight: 700; }
   .save-state.ok { color: var(--ok); }
   .save-state.bad { color: var(--bad); }
@@ -395,6 +418,14 @@
       </div>
 
       <a href="#" class="nav-app" data-app="hanjul"><img class="ico" src="../assets/app-hanjul.png" alt="">한줄</a>
+
+      <a href="#" class="nav-app" data-app="calc"><span class="ico emoji">🧮</span>계산기연구소</a>
+      <div class="side-subs" data-app="calc" hidden>
+        <a href="#" data-app="calc" data-sub="req" class="on">요청·문의</a>
+        <a href="#" data-app="calc" data-sub="an">지표</a>
+        <a href="#" data-app="calc" data-sub="const">기준 데이터</a>
+      </div>
+
       <a href="#" class="nav-app" data-app="dm"><img class="ico" src="../assets/app-deskmoment.png" alt="">DeskMoment<span class="dot" hidden></span></a>
     </nav>
   </aside>
@@ -406,7 +437,7 @@
   <div id="login-view" hidden>
     <div class="mark">DM</div>
     <h1>어드민 콘솔</h1>
-    <p>아가하루 · 오늘하루 · 로또정석 · 한줄 · DeskMoment의 문의와 지표를 한 곳에서.</p>
+    <p>아가하루 · 오늘하루 · 로또정석 · 한줄 · 계산기연구소 · DeskMoment의 문의와 지표를 한 곳에서.</p>
     <label>이메일</label>
     <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
     <label>비밀번호</label>
@@ -561,6 +592,58 @@
       <div id="hanjul-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
     </section>
 
+    <section class="app-sect" id="sect-calc" data-app="calc">
+      <div class="sect-head">
+        <div class="app-ico">🧮</div>
+        <h2>계산기연구소<span class="sub">생활 계산기 + 알바달력 · 답변은 사용자 앱에 표시됨</span></h2>
+        <div class="head-right">
+          <div class="seg sect-days" data-app="calc">
+            <button data-d="7">7일</button><button data-d="30" class="on">30일</button>
+          </div>
+        </div>
+      </div>
+      <nav class="subnav" id="calc-subnav">
+        <button data-sub="req" class="on">요청·문의</button>
+        <button data-sub="an">지표</button>
+        <button data-sub="const">기준 데이터</button>
+      </nav>
+
+      <div id="calc-err"></div>
+
+      <div class="subpane" data-sub="req">
+        <div class="inq-title">요청·문의 <span class="cnt" id="calc-cnt" hidden></span></div>
+        <div class="cl-filters">
+          <select id="cl-f-kind">
+            <option value="">종류 전체</option>
+            <option value="request">계산기 요청</option>
+            <option value="inquiry">값 신고</option>
+          </select>
+          <select id="cl-f-status">
+            <option value="">상태 전체</option>
+            <option value="received">접수됐어요</option>
+            <option value="done">반영했어요</option>
+            <option value="declined">만들지 않기로 했어요</option>
+          </select>
+          <select id="cl-f-days">
+            <option value="0">기간 전체</option>
+            <option value="7">7일</option>
+            <option value="30">30일</option>
+            <option value="90">90일</option>
+          </select>
+          <label class="chk"><input type="checkbox" id="cl-f-unreplied">미답변만</label>
+        </div>
+        <div id="list-calc"><div class="sk sk-card"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="an" hidden>
+        <div id="calc-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="const" hidden>
+        <div id="calc-const"><div class="sk sk-card"></div></div>
+      </div>
+    </section>
+
     <section class="app-sect" id="sect-dm" data-app="dm">
       <div class="sect-head">
         <div class="app-ico"><img src="../assets/app-deskmoment.png" alt="DeskMoment 앱 아이콘"></div>
@@ -639,7 +722,7 @@ for (const [key, p] of Object.entries(PROJECTS)) {
 
 const $ = (s) => document.querySelector(s);
 const connected = { baby: false, rsscu: false, dm: false };
-const state = { baby: [], haru: [], dm: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14, dm: 14 } };
+const state = { baby: [], haru: [], dm: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14, dm: 14, calc: 30 } };
 const chartData = {};   // chartId → {rows, valueKey, name}
 let chartSeq = 0;
 
@@ -735,7 +818,7 @@ function enterApp() {
 
 // ── 탭 전환 (좌측 사이드바 — 앱 하나씩만 표시) ─────────────────
 // 하위 탭이 있는 앱은 사이드바에서 펼쳐지고, 좁은 화면에선 섹션 안 탭 줄(.subnav)이 대신한다.
-const SUB_DEFAULT = { baby: 'an', haru: 'an', lotto: 'an' };
+const SUB_DEFAULT = { baby: 'an', haru: 'an', lotto: 'an', calc: 'req' };
 const subState = { ...SUB_DEFAULT };
 const INQ_SUB = { baby: 'inq', haru: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
 
@@ -767,6 +850,11 @@ const SUB_HOOK = {
     ltState.sub = sub;
     document.querySelector('.sect-days[data-app="lotto"]').style.visibility = sub === 'an' ? '' : 'hidden';
     ({ config: loadLtConfig, numbers: loadLtNumbers, gen: renderLtGen, notice: loadLtNotices }[sub] ?? (() => {}))();
+  },
+  calc(sub) {
+    // 기간 세그먼트는 지표 탭에서만 쓰인다 (요청·문의는 필터의 기간이 따로 있다)
+    document.querySelector('.sect-days[data-app="calc"]').style.visibility = sub === 'an' ? '' : 'hidden';
+    if (sub === 'const') loadCalcConst();
   },
 };
 
@@ -841,7 +929,7 @@ document.addEventListener('click', (e) => {
   const app = b.closest('.sect-days').dataset.app;
   state.days[app] = Number(b.dataset.d);
   b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM })[app]();
+  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM, calc: loadCalcAn })[app]();
   if (app === 'haru' && subState.haru === 'memo') loadHaruMemo();
 });
 
@@ -886,7 +974,7 @@ function topEvHtml(rows) {
 
 async function loadAll() {
   chartSeq = 0; for (const k of Object.keys(chartData)) delete chartData[k];
-  loadBaby(); loadHaru(); loadLotto(); loadHanjul(); loadDM();
+  loadBaby(); loadHaru(); loadLotto(); loadHanjul(); loadDM(); loadCalc();
 }
 
 async function loadBaby() {
@@ -2103,6 +2191,284 @@ document.addEventListener('input', (e) => {
   const ta = e.target.closest('.reply-box textarea');
   if (ta) syncSaveBtn(ta.closest('.card'));
 });
+
+// ── 계산기연구소 (CalcLab) ──────────────────
+// cl_* 테이블은 정책이 완전히 잠겨 있어(anon/authenticated 권한 없음) 전부
+// admin_cl_* RPC(어드민 검사 내장)로만 읽고 쓴다. → admin/setup/calclab.sql
+// SELECT 정책이 없으므로 실시간 구독은 불가 — 새로고침으로 확인한다.
+// read_at 은 앱이 쓰는 값이라 여기서는 읽기만, DELETE 는 제공하지 않는다.
+const CL_KIND = { request: '계산기 요청', inquiry: '값 신고' };
+const CL_STATUS = { received: '접수됐어요', done: '반영했어요', declined: '만들지 않기로 했어요' };
+// 거절 사유 프리셋 — 앱 작성 화면의 "이런 건 못 만들어요" 문구와 동일해야 한다
+const CL_PRESETS = [
+  '이미 있는 계산기와 겹치는 것',
+  '법적 기준이 모호해 숫자를 못 정하는 것',
+  '개인정보를 받아야 하는 것',
+  '상담이 필요한 것 — 계산으로 풀리지 않아요',
+];
+const CL_PERSONA = { alba: '알바', office: '직장인', owner: '사장님', other: '기타' };
+const clState = { items: [], kind: '', status: '', unreplied: false, days: 0, editing: new Set() };
+
+async function clRpc(fn, params) {
+  const { data, error } = await sb.rsscu.rpc(fn, params ?? {});
+  if (error) return { err: error.message };
+  return { data };
+}
+const clErr = (msg) => `<div class="sect-err">${esc(msg)}\n→ admin/setup/calclab.sql 적용 확인</div>`;
+
+async function loadCalc() {
+  if (!connected.rsscu) {
+    $('#calc-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
+    $('#calc-an').innerHTML = ''; $('#list-calc').innerHTML = '';
+    return;
+  }
+  $('#calc-err').innerHTML = '';
+  loadCalcInq();
+  loadCalcAn();
+}
+
+// ── 1. 요청·문의 ─────────────────────────
+async function loadCalcInq() {
+  const el = $('#list-calc');
+  const { data, err } = await clRpc('admin_cl_inquiries', {
+    p_kind: clState.kind || null,
+    p_status: clState.status || null,
+    p_unreplied: clState.unreplied,
+    p_days: clState.days || null,
+  });
+  if (err) { el.innerHTML = clErr('요청·문의 조회 실패: ' + err); return; }
+  clState.items = data ?? [];
+  renderClList();
+}
+
+// 값 신고(inquiry)의 context — 신고 시점의 계산 결과와 적용 상수를 표로
+function clCtxHtml(ctx) {
+  if (!ctx || typeof ctx !== 'object') return '';
+  const rows = [];
+  if (ctx.calculatorId) rows.push(`<tr><td>계산기</td><td>${esc(ctx.calculatorId)}</td></tr>`);
+  if (ctx.resultLabel || ctx.result != null) rows.push(`<tr><td>${esc(ctx.resultLabel ?? '결과')}</td><td><b>${esc(ctx.result)}</b></td></tr>`);
+  for (const b of (Array.isArray(ctx.breakdown) ? ctx.breakdown : [])) rows.push(`<tr><td>${esc(b.label)}</td><td>${esc(b.value)}</td></tr>`);
+  const basis = (Array.isArray(ctx.basis) ? ctx.basis : []).map((b) =>
+    `<tr><td>${esc(b.label)}</td><td>적용 기준일 ${esc(b.effectiveFrom)}</td></tr>`);
+  if (!rows.length && !basis.length) return '';
+  return `<div class="cl-ctx">
+    ${rows.length ? `<div class="cap">신고된 계산</div><div class="tbl-wrap"><table class="tbl">${rows.join('')}</table></div>` : ''}
+    ${basis.length ? `<div class="cap">적용된 상수</div><div class="tbl-wrap"><table class="tbl">${basis.join('')}</table></div>` : ''}
+  </div>`;
+}
+
+function clCardHtml(r) {
+  const replied = !!(r.reply && r.reply.trim());
+  const editingNow = clState.editing.has(r.id);
+  const meta = [r.app_version && 'v' + r.app_version, r.platform, r.os_version && 'OS ' + r.os_version].filter(Boolean);
+  const stBtns = ['received', 'done', 'declined'].map((s) =>
+    `<button data-id="${esc(r.id)}" data-st="${s}" class="${r.status === s ? 'on ' + s : ''}">${CL_STATUS[s]}</button>`).join('');
+  // 프리셋 문구는 채워만 주고 저장 전까지 자유롭게 고칠 수 있다
+  const presets = (r.status === 'declined' && (!replied || editingNow))
+    ? `<div class="cl-presets">${CL_PRESETS.map((p) => `<button data-id="${esc(r.id)}">${esc(p)}</button>`).join('')}</div>` : '';
+  const replyBody = (replied && !editingNow)
+    ? `<div class="reply-done"><div class="cap">등록된 답변 — 앱에서 사용자에게 보임</div><div class="body">${esc(r.reply)}</div></div>
+       <div class="reply-actions"><button class="cl-edit" data-id="${esc(r.id)}">답변 수정</button><span class="save-state"></span></div>`
+    : `<textarea class="cl-ta" data-id="${esc(r.id)}" placeholder="답변… (저장하면 앱에서 사용자에게 보입니다 — 회신 이메일 없음)">${esc(r.reply ?? '')}</textarea>
+       ${presets}
+       <div class="reply-actions">
+         <button class="primary cl-save" data-id="${esc(r.id)}" disabled>${replied ? '수정 저장' : '답변 등록'}</button>
+         ${replied ? `<button class="cl-cancel" data-id="${esc(r.id)}">취소</button>` : ''}
+         <span class="save-state"></span>
+       </div>`;
+  return `<div class="card" data-clid="${esc(r.id)}">
+    <div class="card-top">
+      <span class="cl-kind ${r.kind === 'inquiry' ? 'report' : ''}">${CL_KIND[r.kind] ?? esc(r.kind)}</span>
+      ${replied ? '<span class="badge replied">답변 완료</span>' : '<span class="badge pending">답변 대기</span>'}
+      ${r.read_at ? '' : '<span class="badge newbadge">안 읽음</span>'}
+      <span class="when">${esc(kst(r.created_at))}</span>
+    </div>
+    <div class="msg">${esc(r.body ?? '')}</div>
+    <div class="meta">${meta.map((m) => `<span>${esc(m)}</span>`).join('')}</div>
+    ${r.kind === 'inquiry' ? clCtxHtml(r.context) : ''}
+    <details class="cl-more"><summary>상세 (사용자 · 진단)</summary>
+      <div class="meta" style="margin-top:6px">
+        <span>user ${esc(String(r.user_id ?? '—').slice(0, 8))}</span>
+        <span>client ${esc(r.client_id ?? '—')}</span>
+        ${r.read_at ? `<span>읽음 ${esc(kst(r.read_at))}</span>` : '<span>아직 안 읽음</span>'}
+        ${r.replied_at ? `<span>답변 ${esc(kst(r.replied_at))}</span>` : ''}
+      </div>
+    </details>
+    <div class="reply-box">
+      <div class="cl-status" style="margin-bottom:8px">${stBtns}</div>
+      ${replyBody}
+    </div>
+  </div>`;
+}
+
+function renderClList() {
+  const el = $('#list-calc');
+  const items = clState.items;
+  el.innerHTML = items.length
+    ? items.map(clCardHtml).join('')
+    : '<div class="empty">조건에 맞는 요청·문의가 없습니다</div>';
+  const cnt = $('#calc-cnt');
+  const waiting = items.filter((x) => !(x.reply && x.reply.trim())).length;
+  cnt.hidden = !items.length;
+  cnt.textContent = `${items.length}건${waiting ? ` · 대기 ${waiting}` : ''}`;
+}
+
+const clItem = (id) => clState.items.find((x) => x.id === id);
+const clCard = (id) => document.querySelector(`.card[data-clid="${id}"]`);
+function rerenderClCard(id, msg) {
+  const card = clCard(id);
+  const it = clItem(id);
+  if (!card || !it) { renderClList(); return; }
+  card.outerHTML = clCardHtml(it);
+  if (msg) {
+    const st = clCard(id)?.querySelector('.save-state');
+    if (st) { st.textContent = msg; st.className = 'save-state ok'; }
+  }
+}
+
+document.addEventListener('click', async (e) => {
+  const stBtn = e.target.closest('.cl-status button');
+  if (stBtn) {
+    const { id, st: status } = stBtn.dataset;
+    const it = clItem(id);
+    if (!it || it.status === status) return;
+    const { err } = await clRpc('admin_cl_set_status', { p_id: id, p_status: status });
+    if (err) { toast('상태 변경 실패: ' + err); return; }
+    it.status = status;
+    // 거절인데 답변이 아직 없으면 바로 사유 프리셋이 보이게 편집 모드로
+    if (status === 'declined' && !(it.reply && it.reply.trim())) clState.editing.add(id);
+    rerenderClCard(id);
+    toast(`상태 → ${CL_STATUS[status]}`);
+    return;
+  }
+  const preset = e.target.closest('.cl-presets button');
+  if (preset) {
+    const ta = preset.closest('.card')?.querySelector('.cl-ta');
+    if (ta) { ta.value = preset.textContent; ta.dispatchEvent(new Event('input', { bubbles: true })); ta.focus(); }
+    return;
+  }
+  const save = e.target.closest('.cl-save');
+  if (save) {
+    const id = save.dataset.id;
+    const it = clItem(id);
+    const card = save.closest('.card');
+    if (!it || !card) return;
+    const text = card.querySelector('.cl-ta').value.trim();
+    const st = card.querySelector('.save-state');
+    save.disabled = true; st.textContent = '저장 중…'; st.className = 'save-state';
+    const { err } = await clRpc('admin_cl_reply', { p_id: id, p_reply: text });
+    if (err) { st.textContent = '실패: ' + err; st.className = 'save-state bad'; save.disabled = false; return; }
+    it.reply = text || null;
+    it.replied_at = text ? new Date().toISOString() : null;
+    clState.editing.delete(id);
+    rerenderClCard(id, text ? '저장됨 ✓' : '답변 삭제됨');
+    return;
+  }
+  const edit = e.target.closest('.cl-edit');
+  if (edit) {
+    clState.editing.add(edit.dataset.id);
+    rerenderClCard(edit.dataset.id);
+    clCard(edit.dataset.id)?.querySelector('.cl-ta')?.focus();
+    return;
+  }
+  const cancel = e.target.closest('.cl-cancel');
+  if (cancel) { clState.editing.delete(cancel.dataset.id); rerenderClCard(cancel.dataset.id); }
+});
+
+document.addEventListener('input', (e) => {
+  const ta = e.target.closest('.cl-ta');
+  if (!ta) return;
+  const it = clItem(ta.dataset.id);
+  const btn = ta.closest('.card')?.querySelector('.cl-save');
+  if (!it || !btn) return;
+  const cur = ta.value.trim();
+  const saved = (it.reply ?? '').trim();
+  btn.disabled = cur === saved;
+  btn.textContent = (!cur && saved) ? '답변 삭제' : (saved ? '수정 저장' : '답변 등록');
+  btn.classList.toggle('danger', !cur && !!saved);
+  btn.classList.toggle('primary', !(!cur && saved));
+});
+
+for (const id of ['cl-f-kind', 'cl-f-status', 'cl-f-days']) {
+  document.getElementById(id).addEventListener('change', () => {
+    clState.kind = $('#cl-f-kind').value;
+    clState.status = $('#cl-f-status').value;
+    clState.days = Number($('#cl-f-days').value);
+    loadCalcInq();
+  });
+}
+$('#cl-f-unreplied').addEventListener('change', (e) => { clState.unreplied = e.target.checked; loadCalcInq(); });
+
+// ── 2. 지표 ──────────────────────────────
+async function loadCalcAn() {
+  if (!connected.rsscu) return;
+  const el = $('#calc-an');
+  const days = state.days.calc;
+  const [wk, stats, fnl] = await Promise.all([
+    clRpc('admin_cl_weekly_users', { p_weeks: 12 }),
+    clRpc('admin_cl_calc_stats', { p_days: days }),
+    clRpc('admin_cl_funnel', { p_days: days }),
+  ]);
+  const err = wk.err ?? stats.err ?? fnl.err;
+  if (err) { el.innerHTML = clErr('지표 조회 실패: ' + err); return; }
+  const weeks = wk.data ?? [];
+  const thisWk = weeks[weeks.length - 1];
+  const lastWk = weeks[weeks.length - 2];
+  const rows = stats.data ?? [];
+  const pick = (m) => rows.filter((r) => r.metric === m).map((r) => ({ k: r.k, cnt: Number(r.cnt) }));
+  const runs = pick('calc_run').sort((a, b) => b.cnt - a.cnt);
+  const shares = pick('calc_share').sort((a, b) => b.cnt - a.cnt);
+  const personas = pick('persona').sort((a, b) => b.cnt - a.cnt);
+  const reqDaily = pick('request_daily').map((r) => ({ day: r.k, cnt: r.cnt })).sort((a, b) => a.day.localeCompare(b.day));
+  const total = (l) => l.reduce((a, r) => a + r.cnt, 0);
+  const f = (fnl.data ?? [])[0] ?? {};
+  const step = (n, l, r) => `<div class="fn-step"><div class="n">${fmt(n ?? 0)}</div><div class="l">${l}</div>${r != null ? `<div class="r">${r}</div>` : ''}</div>`;
+  // 주간 차트는 chartCard 를 안 쓴다 — "오늘 n" 라벨이 주 단위에선 거짓말이 된다
+  const wkId = 'ch' + (++chartSeq);
+  chartData[wkId] = { rows: weeks, valueKey: 'users', name: '사용자' };
+  el.innerHTML =
+    statHtml([
+      { k: '★ 이번 주 달력 사용자 (월~일)', v: fmt(thisWk?.users ?? 0), d: delta(Number(thisWk?.users ?? 0), lastWk ? Number(lastWk.users) : null, '지난주') },
+      { k: `계산 실행 · ${days}일`, v: fmt(total(runs)) },
+      { k: `공유 · ${days}일`, v: fmt(total(shares)) },
+      { k: `계산기 요청 · ${days}일`, v: fmt(total(reqDaily)) },
+    ]) +
+    `<div class="inq-title">달력 전환 퍼널 · ${days}일</div>
+     <div class="funnel cl-funnel">
+       ${step(f.calc_to_calendar, '계산 → 달력 유도 클릭')}
+       ${step(f.calendar_open, '달력 진입', ratio(f.calendar_open, f.calc_to_calendar))}
+       ${step(f.calendar_entry, '근무 기록', ratio(f.calendar_entry, f.calendar_open))}
+     </div>
+     <div class="charts2">
+       <div class="chart-card"><h3>★ 주간 달력 사용자 · 12주 (판정 게이트)<span class="last">이번 주 ${fmt(thisWk?.users ?? 0)}</span></h3>${barChart(wkId, weeks, 'users')}</div>
+       ${chartCard(`일별 계산기 요청 · ${days}일`, reqDaily, 'cnt', '요청')}
+     </div>
+     <div class="charts2" style="margin-top:12px">
+       <div class="chart-card"><h3>🧮 계산기별 실행 · ${days}일</h3>${kvBars(runs)}</div>
+       <div class="chart-card"><h3>📤 계산기별 공유 · ${days}일</h3>${kvBars(shares)}</div>
+     </div>
+     <div class="charts2" style="margin-top:12px">
+       <div class="chart-card"><h3>👤 사용자 구성 (persona_pick) · ${days}일</h3>${kvBars(personas, CL_PERSONA)}</div>
+     </div>
+     <p class="fb-link">입력값(연봉·시급 등)은 서버에 저장되지 않음 · 실시간 구독 없음 — 새로고침으로 갱신</p>`;
+}
+
+// ── 3. 기준 데이터 (읽기 전용) ─────────────
+let clConstLoaded = false;
+async function loadCalcConst() {
+  if (clConstLoaded || !connected.rsscu) return;
+  const el = $('#calc-const');
+  const { data, err } = await clRpc('admin_cl_constants');
+  if (err) { el.innerHTML = clErr('기준 데이터 조회 실패: ' + err); return; }
+  clConstLoaded = true;
+  const rows = (data ?? []).map((r) =>
+    `<tr><td><b>${esc(r.year)}</b></td><td>${esc(r.effective_from)}</td><td>v${esc(r.schema_version)}</td><td>${esc(kst(r.published_at))}</td></tr>`).join('');
+  el.innerHTML = `<div class="tbl-wrap"><table class="tbl">
+      <tr><td><b>연도</b></td><td><b>적용 시작일</b></td><td><b>스키마</b></td><td><b>배포 시각</b></td></tr>
+      ${rows || '<tr><td colspan="4" class="empty">아직 없음</td></tr>'}
+    </table></div>
+    <p class="fb-link">보기 전용 — 세율 payload 수정·배포는 CalcLab repo 의 상수 파이프라인에서</p>`;
+}
 
 function subscribeRealtime() {
   if (connected.baby) {

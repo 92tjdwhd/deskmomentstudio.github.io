@@ -19,6 +19,11 @@
 2. SQL Editor에서 `oneulharu-lotto.sql` 전체 실행
 3. 같은 자리에서 `hanjul.sql`, `lotto-admin.sql`, `haru-memo.sql` 도 실행
    - `haru-memo.sql` = 오늘하루 일진 기록(메모) 지표. 앱 1.2.0 이벤트를 읽는다
+4. `calclab.sql` 도 실행 — 계산기연구소(CalcLab) 탭
+   - `cl_inquiries`·`cl_events`·`cl_constants` 는 정책이 완전히 잠긴 테이블이라
+     테이블 권한은 하나도 열지 않고 `admin_cl_*` SECURITY DEFINER RPC로만 오간다
+     (함수마다 첫 줄 admin_users 검사 + `REVOKE EXECUTE FROM PUBLIC, anon`)
+   - `cl_inquiries` 는 SELECT 정책이 없어 실시간 구독이 불가 — 콘솔은 새로고침으로 확인
 
 ## 3. DeskMoment 프로젝트 (jfbrqvljvbckrhiivmyy, 별도 계정)
 
@@ -55,8 +60,8 @@
 
 ## 구성 요약
 
-| | 아가하루 | 오늘하루 | 로또정석 | 한줄 | DeskMoment |
-|---|---|---|---|---|---|
-| 문의 테이블 | `inquiries` (실시간·답변 기록·메일 답장) | `oneulharu_feedback` (실시간·답변 → 앱에 표시) | 서버 문의함 없음 | 서버 문의함 없음 (메일) | `inquiries` (실시간·답변 저장 시 status 변경·메일 답장) |
-| 회원 관리 | `admin_list_users()` — 가입일·최근 로그인·아기/기록 수 + 계정별 광고 on/off(`admin_set_ads`) | – | – | – | – |
-| 애널리틱스 | `admin_daily_stats()` — 가입·기록·활성 아기 (행동분석은 Firebase) | `admin_daily_stats('oneulharu')` + `admin_top_events` | `admin_daily_stats('lotto')` + `admin_top_events` | `admin_hj_daily` + `admin_hj_top_events` + `admin_hj_quote_rank` | **GA4** 세션·제휴 클릭(`/api/admin/ga4` 경유) + `admin_dm_daily`/`admin_dm_overview` 콘텐츠·운영 |
+| | 아가하루 | 오늘하루 | 로또정석 | 한줄 | 계산기연구소 | DeskMoment |
+|---|---|---|---|---|---|---|
+| 문의 테이블 | `inquiries` (실시간·답변 기록·메일 답장) | `oneulharu_feedback` (실시간·답변 → 앱에 표시) | 서버 문의함 없음 | 서버 문의함 없음 (메일) | `cl_inquiries` (RPC 전용·실시간 없음·답변+상태 → 앱에 표시) | `inquiries` (실시간·답변 저장 시 status 변경·메일 답장) |
+| 회원 관리 | `admin_list_users()` — 가입일·최근 로그인·아기/기록 수 + 계정별 광고 on/off(`admin_set_ads`) | – | – | – | – | – |
+| 애널리틱스 | `admin_daily_stats()` — 가입·기록·활성 아기 (행동분석은 Firebase) | `admin_daily_stats('oneulharu')` + `admin_top_events` | `admin_daily_stats('lotto')` + `admin_top_events` | `admin_hj_daily` + `admin_hj_top_events` + `admin_hj_quote_rank` | `admin_cl_weekly_users`(★ 판정 게이트) + `admin_cl_calc_stats` + `admin_cl_funnel` + `admin_cl_constants` | **GA4** 세션·제휴 클릭(`/api/admin/ga4` 경유) + `admin_dm_daily`/`admin_dm_overview` 콘텐츠·운영 |
