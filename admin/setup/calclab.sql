@@ -17,6 +17,8 @@
 --   DROP FUNCTION IF EXISTS public.admin_cl_calc_stats(INT);
 --   DROP FUNCTION IF EXISTS public.admin_cl_funnel(INT);
 --   DROP FUNCTION IF EXISTS public.admin_cl_constants();
+--   DROP FUNCTION IF EXISTS public.admin_cl_daily_events(INT);
+--   DROP FUNCTION IF EXISTS public.admin_cl_recent_events(INT);
 
 -- ── 1. 요청·문의 목록 (필터: kind · status · 미답변 · 기간) ─────────────
 CREATE OR REPLACE FUNCTION public.admin_cl_inquiries(
@@ -224,3 +226,54 @@ END;
 $$;
 REVOKE EXECUTE ON FUNCTION public.admin_cl_constants() FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_cl_constants() TO authenticated;
+
+-- ── 8. 일별 이벤트 현황 (event_type 별 건수·순 사용자) ────────────────
+CREATE OR REPLACE FUNCTION public.admin_cl_daily_events(p_days INT DEFAULT 14)
+RETURNS TABLE(day DATE, event_type TEXT, cnt BIGINT, users BIGINT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.admin_users au WHERE au.user_id = auth.uid()) THEN
+    RAISE EXCEPTION 'admin only' USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  RETURN QUERY
+  SELECT (e.created_at AT TIME ZONE 'Asia/Seoul')::date,
+         e.event_type,
+         COUNT(*),
+         COUNT(DISTINCT e.user_id)
+    FROM public.cl_events e
+   WHERE e.created_at > NOW() - make_interval(days => p_days)
+   GROUP BY 1, 2
+   ORDER BY 1 DESC, 3 DESC;
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.admin_cl_daily_events(INT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_cl_daily_events(INT) TO authenticated;
+
+-- ── 9. 최근 이벤트 목록 (user_id 는 앞 8자만 — 익명 계정 구분용) ──────
+CREATE OR REPLACE FUNCTION public.admin_cl_recent_events(p_limit INT DEFAULT 100)
+RETURNS TABLE(at_kst TEXT, event_type TEXT, calc_id TEXT, user8 TEXT)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM public.admin_users au WHERE au.user_id = auth.uid()) THEN
+    RAISE EXCEPTION 'admin only' USING ERRCODE = 'insufficient_privilege';
+  END IF;
+
+  RETURN QUERY
+  SELECT TO_CHAR(e.created_at AT TIME ZONE 'Asia/Seoul', 'MM-DD HH24:MI'),
+         e.event_type,
+         e.calc_id,
+         LEFT(e.user_id::text, 8)
+    FROM public.cl_events e
+   ORDER BY e.created_at DESC
+   LIMIT LEAST(GREATEST(COALESCE(p_limit, 100), 1), 500);
+END;
+$$;
+REVOKE EXECUTE ON FUNCTION public.admin_cl_recent_events(INT) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.admin_cl_recent_events(INT) TO authenticated;

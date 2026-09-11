@@ -2207,7 +2207,7 @@ const CL_PRESETS = [
   '상담이 필요한 것 — 계산으로 풀리지 않아요',
 ];
 const CL_PERSONA = { alba: '알바', office: '직장인', owner: '사장님', other: '기타' };
-const clState = { items: [], kind: '', status: '', unreplied: false, days: 0, editing: new Set() };
+const clState = { items: [], kind: '', status: '', unreplied: false, days: 0, evDays: 14, editing: new Set() };
 
 async function clRpc(fn, params) {
   const { data, error } = await sb.rsscu.rpc(fn, params ?? {});
@@ -2450,8 +2450,59 @@ async function loadCalcAn() {
      <div class="charts2" style="margin-top:12px">
        <div class="chart-card"><h3>👤 사용자 구성 (persona_pick) · ${days}일</h3>${kvBars(personas, CL_PERSONA)}</div>
      </div>
+     <div class="inq-title" style="display:flex;align-items:center;gap:10px">일별 이벤트 현황
+       <span class="seg" id="cl-evdays">
+         <button data-d="14" class="${clState.evDays === 14 ? 'on' : ''}">14일</button><button data-d="30" class="${clState.evDays === 30 ? 'on' : ''}">30일</button>
+       </span>
+     </div>
+     <div id="cl-daily"><div class="sk sk-card"></div></div>
+     <div class="inq-title">최근 이벤트 100건</div>
+     <div id="cl-recent"><div class="sk sk-card"></div></div>
      <p class="fb-link">입력값(연봉·시급 등)은 서버에 저장되지 않음 · 실시간 구독 없음 — 새로고침으로 갱신</p>`;
+  loadClDaily();
+  loadClRecent();
 }
+
+// 일별 이벤트 현황 — 날짜별로 묶어 event_type 건수·순 사용자
+async function loadClDaily() {
+  const el = $('#cl-daily');
+  if (!el) return;
+  const { data, err } = await clRpc('admin_cl_daily_events', { p_days: clState.evDays });
+  if (err) { el.innerHTML = clErr('일별 이벤트 조회 실패: ' + err); return; }
+  const rows = data ?? [];
+  if (!rows.length) { el.innerHTML = '<div class="empty">아직 이벤트 없음</div>'; return; }
+  let lastDay = null;
+  const trs = rows.map((r) => {
+    const first = r.day !== lastDay;
+    lastDay = r.day;
+    return `<tr>${first ? `<td><b>${esc(kdate(r.day))}</b></td>` : '<td></td>'}<td>${esc(r.event_type)}</td><td style="text-align:right">${fmt(r.cnt)}</td><td style="text-align:right">${fmt(r.users)}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<div class="tbl-wrap"><table class="tbl">
+    <tr><td><b>날짜</b></td><td><b>이벤트</b></td><td style="text-align:right"><b>건수</b></td><td style="text-align:right"><b>사용자</b></td></tr>
+    ${trs}</table></div>`;
+}
+
+async function loadClRecent() {
+  const el = $('#cl-recent');
+  if (!el) return;
+  const { data, err } = await clRpc('admin_cl_recent_events', { p_limit: 100 });
+  if (err) { el.innerHTML = clErr('최근 이벤트 조회 실패: ' + err); return; }
+  const rows = data ?? [];
+  if (!rows.length) { el.innerHTML = '<div class="empty">아직 이벤트 없음</div>'; return; }
+  const trs = rows.map((r) =>
+    `<tr><td>${esc(r.at_kst)}</td><td>${esc(r.event_type)}</td><td>${esc(r.calc_id ?? '—')}</td><td>${esc(r.user8 ?? '—')}</td></tr>`).join('');
+  el.innerHTML = `<div class="tbl-wrap"><table class="tbl">
+    <tr><td><b>시각 (KST)</b></td><td><b>이벤트</b></td><td><b>계산기</b></td><td><b>user (앞 8자)</b></td></tr>
+    ${trs}</table></div>`;
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('#cl-evdays button');
+  if (!b) return;
+  clState.evDays = Number(b.dataset.d);
+  b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  loadClDaily();
+});
 
 // ── 3. 기준 데이터 (읽기 전용) ─────────────
 let clConstLoaded = false;
