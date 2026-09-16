@@ -37,6 +37,8 @@
     --c-dm-soft: #f5f3ff;
     --c-calc: #0e7490;
     --c-calc-soft: #ecfeff;
+    --c-tarot: #6d28d9;
+    --c-tarot-soft: #f5f3ff;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -61,6 +63,7 @@
   .side-nav [data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
   .side-nav [data-app="dm"]     { --c: var(--c-dm);     --c-soft: var(--c-dm-soft); }
   .side-nav [data-app="calc"]   { --c: var(--c-calc);   --c-soft: var(--c-calc-soft); }
+  .side-nav [data-app="tarot"]  { --c: var(--c-tarot);  --c-soft: var(--c-tarot-soft); }
   .side-cap { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; color: var(--text-muted); padding: 7px 10px 5px; }
   .side-nav a.nav-app { display: flex; align-items: center; gap: 6px; font-size: 0.82rem; font-weight: 700; color: var(--text-2); padding: 8px 10px; border-radius: 10px; }
   .side-nav a.nav-app .ico { width: 17px; height: 17px; border-radius: 5px; flex: 0 0 auto; object-fit: cover; }
@@ -126,6 +129,7 @@
   .app-sect[data-app="hanjul"] { --c: var(--c-hanjul); --c-soft: var(--c-hanjul-soft); }
   .app-sect[data-app="dm"]    { --c: var(--c-dm);    --c-soft: var(--c-dm-soft); }
   .app-sect[data-app="calc"]  { --c: var(--c-calc);  --c-soft: var(--c-calc-soft); }
+  .app-sect[data-app="tarot"] { --c: var(--c-tarot); --c-soft: var(--c-tarot-soft); }
 
   /* ── 앱 안에서 화면을 더 나누는 탭 — 지금은 로또정석만 쓴다 ── */
   /* 넓은 화면에선 좌측 사이드바가 하위 탭을 대신하고, 좁은 화면에서만 이 탭 줄이 나온다 */
@@ -408,6 +412,12 @@
         <a href="#" data-app="haru" data-sub="inq">건의·문의<span class="dot" hidden></span></a>
       </div>
 
+      <a href="#" class="nav-app" data-app="tarot"><span class="ico emoji">🔮</span>하루타로<span class="dot" hidden></span></a>
+      <div class="side-subs" data-app="tarot" hidden>
+        <a href="#" data-app="tarot" data-sub="an" class="on">애널리틱스</a>
+        <a href="#" data-app="tarot" data-sub="inq">건의함<span class="dot" hidden></span></a>
+      </div>
+
       <a href="#" class="nav-app" data-app="lotto"><img class="ico" src="../assets/app-lotto.png" alt="">로또정석</a>
       <div class="side-subs" data-app="lotto" hidden>
         <a href="#" data-app="lotto" data-sub="an" class="on">애널리틱스</a>
@@ -437,7 +447,7 @@
   <div id="login-view" hidden>
     <div class="mark">DM</div>
     <h1>어드민 콘솔</h1>
-    <p>아가하루 · 오늘하루 · 로또정석 · 한줄 · 계산기연구소 · DeskMoment의 문의와 지표를 한 곳에서.</p>
+    <p>아가하루 · 오늘하루 · 하루타로 · 로또정석 · 한줄 · 계산기연구소 · DeskMoment의 문의와 지표를 한 곳에서.</p>
     <label>이메일</label>
     <input id="email" type="email" autocomplete="username" value="seongjong@deskmomentstudio.com">
     <label>비밀번호</label>
@@ -532,6 +542,34 @@
       <div class="subpane" data-sub="inq" hidden>
         <div class="inq-title">건의·문의 <span class="cnt" id="haru-cnt" hidden></span></div>
         <div id="list-haru"><div class="sk sk-card"></div></div>
+      </div>
+    </section>
+
+    <section class="app-sect" id="sect-tarot" data-app="tarot">
+      <div class="sect-head">
+        <div class="app-ico">🔮</div>
+        <h2>하루타로<span class="sub">하루 한 장 오늘의 타로 · 답변은 사용자 앱에 표시됨</span></h2>
+        <div class="head-right">
+          <div class="live-dot" hidden data-live="tarot"><i></i>실시간</div>
+          <div class="seg sect-days" data-app="tarot">
+            <button data-d="7">7일</button><button data-d="14" class="on">14일</button><button data-d="30">30일</button>
+          </div>
+        </div>
+      </div>
+      <nav class="subnav" id="tarot-subnav">
+        <button data-sub="an" class="on">애널리틱스</button>
+        <button data-sub="inq">건의함</button>
+      </nav>
+
+      <div id="tarot-err"></div>
+
+      <div class="subpane" data-sub="an">
+        <div id="tarot-an"><div class="sk sk-stats"></div><div class="sk sk-chart"></div></div>
+      </div>
+
+      <div class="subpane" data-sub="inq" hidden>
+        <div class="inq-title">건의함 <span class="cnt" id="tarot-cnt" hidden></span></div>
+        <div id="list-tarot"><div class="sk sk-card"></div></div>
       </div>
     </section>
 
@@ -722,7 +760,7 @@ for (const [key, p] of Object.entries(PROJECTS)) {
 
 const $ = (s) => document.querySelector(s);
 const connected = { baby: false, rsscu: false, dm: false };
-const state = { baby: [], haru: [], dm: [], days: { baby: 14, haru: 14, lotto: 14, hanjul: 14, dm: 14, calc: 30 } };
+const state = { baby: [], haru: [], tarot: [], dm: [], days: { baby: 14, haru: 14, tarot: 14, lotto: 14, hanjul: 14, dm: 14, calc: 30 } };
 const chartData = {};   // chartId → {rows, valueKey, name}
 let chartSeq = 0;
 
@@ -818,9 +856,9 @@ function enterApp() {
 
 // ── 탭 전환 (좌측 사이드바 — 앱 하나씩만 표시) ─────────────────
 // 하위 탭이 있는 앱은 사이드바에서 펼쳐지고, 좁은 화면에선 섹션 안 탭 줄(.subnav)이 대신한다.
-const SUB_DEFAULT = { baby: 'an', haru: 'an', lotto: 'an', calc: 'req' };
+const SUB_DEFAULT = { baby: 'an', haru: 'an', tarot: 'an', lotto: 'an', calc: 'req' };
 const subState = { ...SUB_DEFAULT };
-const INQ_SUB = { baby: 'inq', haru: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
+const INQ_SUB = { baby: 'inq', haru: 'inq', tarot: 'inq' };   // 새 문의 뱃지를 지울 하위 탭
 
 function showTab(app) {
   document.querySelectorAll('.app-sect').forEach((s) => s.classList.toggle('active', s.dataset.app === app));
@@ -845,6 +883,9 @@ const SUB_HOOK = {
     // 기간 세그먼트는 애널리틱스와 기록 두 탭 모두에서 쓰인다
     document.querySelector('.sect-days[data-app="haru"]').style.visibility = sub === 'inq' ? 'hidden' : '';
     if (sub === 'memo') loadHaruMemo();
+  },
+  tarot(sub) {
+    document.querySelector('.sect-days[data-app="tarot"]').style.visibility = sub === 'an' ? '' : 'hidden';
   },
   lotto(sub) {
     ltState.sub = sub;
@@ -929,7 +970,7 @@ document.addEventListener('click', (e) => {
   const app = b.closest('.sect-days').dataset.app;
   state.days[app] = Number(b.dataset.d);
   b.parentElement.querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
-  ({ baby: loadBaby, haru: loadHaru, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM, calc: loadCalcAn })[app]();
+  ({ baby: loadBaby, haru: loadHaru, tarot: loadTarot, lotto: loadLotto, hanjul: loadHanjul, dm: loadDM, calc: loadCalcAn })[app]();
   if (app === 'haru' && subState.haru === 'memo') loadHaruMemo();
 });
 
@@ -974,7 +1015,7 @@ function topEvHtml(rows) {
 
 async function loadAll() {
   chartSeq = 0; for (const k of Object.keys(chartData)) delete chartData[k];
-  loadBaby(); loadHaru(); loadLotto(); loadHanjul(); loadDM(); loadCalc();
+  loadBaby(); loadHaru(); loadTarot(); loadLotto(); loadHanjul(); loadDM(); loadCalc();
 }
 
 async function loadBaby() {
@@ -1036,6 +1077,63 @@ async function loadHaru() {
   } else {
     state.haru = fb.data.map(normHaru);
     renderList('haru');
+  }
+}
+
+// ── 하루타로 ─────────────────────────────
+// 오늘하루와 같은 프로젝트(rsscu)·같은 건의함 구조. 이벤트는 admin_ht_* RPC 로만 읽는다.
+// → admin/setup/harutarot.sql
+const HT_KIND = {
+  spread:        { title: '뽑기 스프레드 (draw_complete)',   label: { one: '원카드', three: '3카드' } },
+  prompt_spread: { title: '프롬프트 열기 (prompt_open)',    label: { one: '원카드', three: '3카드', today: '오늘의 카드' } },
+  ai_app:        { title: 'AI 앱으로 이동 (ai_open)',        label: { chatgpt: 'ChatGPT', claude: 'Claude', gemini: 'Gemini' } },
+  today_flip:    { title: '오늘의 카드 방향 (today_flip)',   label: { true: '역방향', false: '정방향' } },
+  notify:        { title: '알림 토글 (notify_toggle)',       label: { true: '켬', false: '끔' } },
+};
+
+function htBreakdownHtml(rows) {
+  const byKind = {};
+  for (const r of rows ?? []) (byKind[r.kind] ??= []).push(r);
+  const blocks = Object.entries(HT_KIND).map(([kind, def]) => {
+    const rs = byKind[kind] ?? [];
+    const total = rs.reduce((a, r) => a + Number(r.cnt), 0);
+    const lis = rs.map((r) => {
+      const pct = total ? Math.round((Number(r.cnt) / total) * 100) : 0;
+      return `<div class="ev-row">
+        <div class="name">${esc(def.label[r.key] ?? r.key)}</div>
+        <div class="track"><div class="fill" style="width:${Math.max(1, pct)}%"></div></div>
+        <div class="num"><b>${fmt(r.cnt)}</b> · ${pct}%</div>
+      </div>`;
+    }).join('');
+    return `<div class="chart-card"><h3>${esc(def.title)}<span class="last">${fmt(total)}건</span></h3>
+      <div class="ev-rows">${lis || '<div class="empty">데이터 없음</div>'}</div></div>`;
+  });
+  return `<div class="charts2">${blocks.join('')}</div>`;
+}
+
+async function loadTarot() {
+  const days = state.days.tarot;
+  if (!connected.rsscu) {
+    $('#tarot-err').innerHTML = '<div class="sect-err">프로젝트 미연결 — 로그인 실패 또는 화이트리스트 없음</div>';
+    $('#tarot-an').innerHTML = ''; $('#list-tarot').innerHTML = '';
+    return;
+  }
+  const [an, top, bd, fb] = await Promise.all([
+    sb.rsscu.rpc('admin_ht_daily', { p_days: days * 2 }),
+    sb.rsscu.rpc('admin_ht_top_events', { p_days: days }),
+    sb.rsscu.rpc('admin_ht_breakdown', { p_days: days }),
+    sb.rsscu.from('harutarot_feedback').select('*').order('created_at', { ascending: false }).limit(100),
+  ]);
+  $('#tarot-an').innerHTML = an.error
+    ? `<div class="sect-err">지표 조회 실패: ${esc(an.error.message)}\n→ admin/setup/harutarot.sql 적용 확인</div>`
+    : anBlock(an.data, top.data, days) + (bd.error
+        ? `<div class="sect-err">분포 조회 실패: ${esc(bd.error.message)}</div>`
+        : htBreakdownHtml(bd.data));
+  if (fb.error) {
+    $('#tarot-err').innerHTML = `<div class="sect-err">건의함 조회 실패: ${esc(fb.error.message)}\n→ admin/setup/harutarot.sql 적용 확인</div>`;
+  } else {
+    state.tarot = fb.data.map(normTarot);
+    renderList('tarot');
   }
 }
 
@@ -2001,6 +2099,17 @@ function normHaru(r) {
   };
 }
 
+function normTarot(r) {
+  return {
+    app: 'tarot', key: 'tarot-' + (r.id ?? r.device_id + '-' + r.created_at),
+    id: r.id ?? null,
+    deviceId: r.device_id,
+    message: r.content, createdAt: r.created_at,
+    reply: r.reply,
+    meta: [r.app_ver && 'v' + r.app_ver, r.platform, '기기 ' + String(r.device_id).slice(0, 8)].filter(Boolean),
+  };
+}
+
 const DM_INQ_TYPE = { question: '질문', feature: '건의', bug: '버그', other: '기타' };
 function normDM(r) {
   return {
@@ -2019,12 +2128,13 @@ const MAIL_GREETING = { baby: '안녕하세요, 아가하루입니다.', dm: '�
 // 답변이 등록된 문의는 기본이 "읽기 전용 + 수정 버튼" 이다.
 // 편집 중인 카드만 여기 담기고, 목록이 다시 그려져도 편집 상태는 유지된다.
 const editing = new Set();
-const itemOf = (key) => [...state.baby, ...state.haru, ...state.dm].find((x) => x.key === key);
+const itemOf = (key) => [...state.baby, ...state.haru, ...state.tarot, ...state.dm].find((x) => x.key === key);
 const cardOf = (key) => [...document.querySelectorAll('.card')].find((c) => c.dataset.key === key);
 const hasReply = (it) => !!(it.reply && it.reply.trim());
 
 const MAIL_NOTE = {
   haru: '저장하면 앱의 건의 내역에서 사용자에게 보입니다',
+  tarot: '저장하면 앱의 건의함에서 "답변: …" 으로 사용자에게 보입니다',
   _: '저장된 답변은 기록용 — 사용자 전달은 메일로',
 };
 
@@ -2132,6 +2242,13 @@ async function saveReply(key, card) {
   } else if (it.app === 'dm') {
     // 답변 유무에 따라 status 까지 함께 바뀐다 (deskmoment.com/admin 과 같은 동작)
     ({ error } = await sb.dm.rpc('admin_dm_reply_inquiry', { p_id: it.id, p_reply: text }));
+  } else if (it.app === 'tarot') {
+    // 오늘하루와 같은 구조지만 replied_at 컬럼이 있어 함께 채운다
+    const base = sb.rsscu.from('harutarot_feedback')
+      .update({ reply: text || null, replied_at: text ? new Date().toISOString() : null });
+    ({ error } = await (it.id != null
+      ? base.eq('id', it.id)
+      : base.eq('device_id', it.deviceId).eq('created_at', it.createdAt)));
   } else {
     // id 가 있으면 그걸로 짚는다. (기기, 작성시각) 조합은 타임스탬프 표기가
     // 조금만 달라져도 0건 업데이트가 조용히 성공으로 돌아온다.
@@ -2542,6 +2659,16 @@ function subscribeRealtime() {
         renderList('haru');
         $('#list-haru .card')?.classList.add('new-item');
         bumpDot('haru');
+        document.title = '● 새 문의 — DM Studio Admin';
+      })
+      .subscribe();
+    document.querySelector('[data-live="tarot"]').hidden = false;
+    sb.rsscu.channel('inq-tarot')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'harutarot_feedback' }, (payload) => {
+        state.tarot.unshift(normTarot(payload.new));
+        renderList('tarot');
+        $('#list-tarot .card')?.classList.add('new-item');
+        bumpDot('tarot');
         document.title = '● 새 문의 — DM Studio Admin';
       })
       .subscribe();
